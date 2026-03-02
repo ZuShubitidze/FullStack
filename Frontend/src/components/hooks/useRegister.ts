@@ -1,6 +1,5 @@
-import { API_URL } from "@/App";
+import api from "@/api";
 import { useAuth } from "@/context/Authcontext";
-import axios from "axios";
 import { useNavigate } from "react-router";
 
 export const useRegister = () => {
@@ -9,7 +8,7 @@ export const useRegister = () => {
 
   const register = async (name: string, email: string, password: string) => {
     try {
-      const res = await axios.post(`${API_URL}/auth/register`, {
+      const res = await api.post(`/auth/register`, {
         name,
         email,
         password,
