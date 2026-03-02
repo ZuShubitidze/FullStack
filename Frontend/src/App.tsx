@@ -4,6 +4,8 @@ import router from "./routes/routes";
 import { AuthProvider } from "./context/Authcontext";
 
 function App() {
+  console.log("Backend URL is:", import.meta.env.VITE_API_URL);
+
   return (
     <AuthProvider>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">

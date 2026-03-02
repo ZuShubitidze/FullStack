@@ -16,14 +16,14 @@ const allowedOrigins = [
   "http://localhost:5173", // Local Vite/React dev
   process.env.FRONTEND_URL, // Vercel URL
 ];
-
+// Allow domains access
 app.use(
   cors({
     origin: function (origin, callback) {
-      // 1. Allow no origin (like mobile apps/Postman)
+      // Allow no origin (like mobile apps/Postman)
       if (!origin) return callback(null, true);
 
-      // 2. Check if it's in the allowed list or is a Vercel preview URL
+      // Check if it's in the allowed list or is a Vercel preview URL
       const isVercelPreview = /\.vercel\.app$/.test(origin);
       const isAllowed = allowedOrigins.includes(origin);
 
