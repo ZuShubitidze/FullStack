@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "@/api";
 
 export const updateCommentHook = async (
   comment: string,
@@ -6,13 +6,10 @@ export const updateCommentHook = async (
   id: number,
 ) => {
   try {
-    const res = await axios.put(
-      `http://localhost:3000/posts/${postId}/comments`,
-      {
-        comment,
-        id,
-      },
-    );
+    const res = await api.put(`/posts/${postId}/comments`, {
+      comment,
+      id,
+    });
     if (res.data) {
       console.log("Commented successfully", res.data);
     }

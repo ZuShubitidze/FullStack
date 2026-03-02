@@ -1,8 +1,8 @@
-import axios from "axios";
+import api from "@/api";
 
 export const putPost = async (id: string, title: string, content: string) => {
   try {
-    const res = await axios.put(`http://localhost:3000/posts/${id}`, {
+    const res = await api.put(`/posts/${id}`, {
       title,
       content,
     });

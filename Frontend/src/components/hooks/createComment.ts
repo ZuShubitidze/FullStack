@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "@/api";
 
 export const createComment = async (
   comment: string,
@@ -7,15 +7,12 @@ export const createComment = async (
   parentId?: number,
 ) => {
   try {
-    const res = await axios.post(
-      `http://localhost:3000/posts/${postId}/comments`,
-      {
-        comment,
-        authorId,
-        postId,
-        parentId,
-      },
-    );
+    const res = await api.post(`/posts/${postId}/comments`, {
+      comment,
+      authorId,
+      postId,
+      parentId,
+    });
     if (res.data) {
       console.log("Commented successfully", res.data);
     }

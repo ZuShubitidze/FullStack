@@ -1,5 +1,5 @@
+import api from "@/api";
 import { useAuth } from "@/context/Authcontext";
-import axios from "axios";
 import { useNavigate } from "react-router";
 
 export const useLogin = () => {
@@ -8,11 +8,7 @@ export const useLogin = () => {
 
   const login = async (email: string, password: string) => {
     try {
-      const res = await axios.post(
-        "http://localhost:3000/auth/login",
-        { email, password },
-        { withCredentials: true },
-      );
+      const res = await api.post("/auth/login", { email, password });
 
       if (res.data) {
         // Update global state
