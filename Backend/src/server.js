@@ -11,9 +11,28 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+// Allowed Domains
+const allowedOrigins = [
+  "http://localhost:5173", // Local Vite/React dev
+  process.env.FRONTEND_URL, // Vercel URL
+];
+
 app.use(
   cors({
-    origin: "http://localhost:5173", // Default for Vite/React
+    origin: function (origin, callback) {
+      // 1. Allow no origin (like mobile apps/Postman)
+      if (!origin) return callback(null, true);
+
+      // 2. Check if it's in the allowed list or is a Vercel preview URL
+      const isVercelPreview = /\.vercel\.app$/.test(origin);
+      const isAllowed = allowedOrigins.includes(origin);
+
+      if (isAllowed || isVercelPreview) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS blocked this request"));
+      }
+    },
     credentials: true, // Allow the browser to send/receive the JWT cookie
   }),
 );
@@ -37,9 +56,9 @@ app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
 app.use("/posts/:postId/comments", commentRoutes);
 
-// Listen to server port
-const server = app.listen(3000, () => {
-  console.log("Server is ruuning on port http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 app.get("/", (req, res) => {
