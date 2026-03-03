@@ -1,3 +1,4 @@
+import api from "@/api";
 import type { User } from "@/types/user.interface";
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -11,13 +12,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Check if user is logged in on every page load
   const checkAuth = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/auth/me", {
+      const res = await api.get("/auth/me", {
         withCredentials: true,
       });
       // To see what backend sent
       console.log("Full Axios Response:", res.data);
 
       const userData = res.data.data?.user;
+      console.log(res.data.data?.user);
 
       setUser(userData);
     } catch (err: any) {

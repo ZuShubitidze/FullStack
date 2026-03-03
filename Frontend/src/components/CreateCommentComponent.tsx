@@ -5,7 +5,13 @@ import { Field } from "./ui/field";
 import { createComment } from "./hooks/createComment";
 import { Textarea } from "./ui/textarea";
 
-const CreateCommentComponent = ({ postId }: { postId: number }) => {
+const CreateCommentComponent = ({
+  postId,
+  onCommentAdded,
+}: {
+  postId: number;
+  onCommentAdded: () => void;
+}) => {
   const { user } = useAuth();
   const [comment, setComment] = useState<string>("");
   const [isCommenting, setIsCommenting] = useState<boolean>(false);
@@ -13,8 +19,13 @@ const CreateCommentComponent = ({ postId }: { postId: number }) => {
   const handleCreateComment = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await createComment(comment, user.id, postId);
-    setIsCommenting(false);
+    const result = await createComment(comment, user.id, postId);
+
+    if (result) {
+      setComment(""); // Clear input
+      setIsCommenting(false);
+      onCommentAdded(); // <--- This triggers the parent to re-fetch data!
+    }
   };
 
   return (

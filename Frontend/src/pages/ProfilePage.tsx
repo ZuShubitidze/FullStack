@@ -2,6 +2,7 @@ import { useAuth } from "@/context/Authcontext";
 
 const ProfilePage = () => {
   const { user } = useAuth();
+  console.log(user);
 
   return (
     <main className="flex flex-col gap-10 p-6 rounded-2xl dark:bg-zinc-800 bg-blue-300">

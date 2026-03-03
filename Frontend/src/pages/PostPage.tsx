@@ -26,20 +26,19 @@ const PostPage = () => {
 
   // Get Post and Comments
   useEffect(() => {
-    const loadPost = async () => {
-      if (!id) return;
-
-      const postData = await getPost(id);
-
-      if (postData) {
-        setPost(postData);
-        setTitle(postData.title);
-        setContent(postData.content || "");
-      }
-    };
-
     loadPost();
   }, [id]);
+
+  const loadPost = async () => {
+    if (!id) return;
+    const postData = await getPost(id);
+
+    if (postData) {
+      setPost(postData);
+      setTitle(postData.title);
+      setContent(postData.content || "");
+    }
+  };
 
   // Update Post
   const handlePostUpdate = async (e: React.FormEvent) => {
@@ -124,7 +123,10 @@ const PostPage = () => {
           </section>
           {/* Create Comment Section */}
           <section>
-            <CreateCommentComponent postId={Number(post.id)} />
+            <CreateCommentComponent
+              postId={Number(post.id)}
+              onCommentAdded={loadPost}
+            />
           </section>
           {/* Comments Section */}
           <section>
@@ -132,7 +134,11 @@ const PostPage = () => {
               {post.comments.length > 0 ? (
                 post.comments.map((comment) => (
                   <li key={comment.id}>
-                    <CommentItem comment={comment} postId={Number(post.id)} />
+                    <CommentItem
+                      comment={comment}
+                      postId={Number(post.id)}
+                      onCommentAdded={loadPost}
+                    />
                   </li>
                 ))
               ) : (

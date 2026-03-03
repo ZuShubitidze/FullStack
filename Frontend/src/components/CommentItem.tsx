@@ -9,9 +9,11 @@ import { updateCommentHook } from "./hooks/updateComment";
 const CommentItem = ({
   comment,
   postId,
+  onCommentAdded,
 }: {
   comment: Comment;
   postId: number;
+  onCommentAdded: () => void;
 }) => {
   // Add a local state to hold the 'live' version of the text
   const [displayText, setDisplayText] = useState(comment.comment);
@@ -21,8 +23,8 @@ const CommentItem = ({
   const [isReplying, setIsReplying] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
-  // const [updateComment, setUpdateComment] = useState<string>("");
 
+  // Reply
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyText.trim()) return;
@@ -38,6 +40,8 @@ const CommentItem = ({
     if (newReply) {
       setReplyText("");
       setIsReplying(false);
+      // Update Comments
+      onCommentAdded();
     }
   };
 
@@ -58,7 +62,7 @@ const CommentItem = ({
         <p className="text-xs font-bold">{comment.author?.name}</p>
         <p>{displayText}</p>
         {/* Edit Comment */}
-        <section className="p-2">
+        <section className="p-2 ">
           {user.id === comment.authorId && (
             <Button onClick={() => setIsUpdating(true)} disabled={isUpdating}>
               Edit Your Comment
@@ -106,7 +110,12 @@ const CommentItem = ({
 
       {/* Recursion: Render replies of THIS comment */}
       {comment.replies?.map((reply: any) => (
-        <CommentItem key={reply.id} comment={reply} postId={postId} />
+        <CommentItem
+          key={reply.id}
+          comment={reply}
+          postId={postId}
+          onCommentAdded={onCommentAdded}
+        />
       ))}
     </div>
   );
