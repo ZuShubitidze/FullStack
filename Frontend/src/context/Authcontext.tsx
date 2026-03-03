@@ -1,6 +1,5 @@
 import api from "@/api";
 import type { User } from "@/types/user.interface";
-import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext<any>(null);
@@ -20,6 +19,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       const userData = res.data.data?.user;
       console.log(res.data.data?.user);
+      console.log(res.data);
 
       setUser(userData);
     } catch (err: any) {
@@ -36,11 +36,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Logout
   const logout = async () => {
     try {
-      await axios.post(
-        "http://localhost:3000/auth/logout",
-        {},
-        { withCredentials: true },
-      );
+      await api.post("/auth/logout", {}, { withCredentials: true });
       setUser(null);
       window.location.href = "/login"; // Redirect to login
     } catch (err) {
