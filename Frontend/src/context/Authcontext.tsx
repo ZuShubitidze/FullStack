@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Full Axios Response:", res.data);
 
       const userData = res.data.data?.user;
-      console.log(res.data.data?.user);
+      console.log("Setting User to Context:", userData);
       console.log(res.data);
 
       setUser(userData);
@@ -46,6 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     checkAuth();
+    console.log("Current Auth State:", user);
   }, []);
 
   return (

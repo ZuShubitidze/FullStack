@@ -100,6 +100,7 @@ const login = async (req, res) => {
         user: {
           id: existingUser.id,
           email: email,
+          name: existingUser.name,
         },
         token,
       },
@@ -148,6 +149,7 @@ const getMe = async (req, res) => {
         user: fullUser,
       },
     });
+    console.log(fullUser);
   } catch (error) {
     res.status(500).json({ error: "Server error" });
   }
