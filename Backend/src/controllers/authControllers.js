@@ -2,6 +2,7 @@ import { prisma } from "../lib/prisma.js";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/generateToken.js";
 import { registerSchema } from "../validators/authValidators.js";
+import jwt from "jsonwebtoken";
 
 // Register
 const register = async (req, res) => {
@@ -79,6 +80,8 @@ const login = async (req, res) => {
       where: { email: email },
     });
 
+    console.log("DEBUG USER FROM DB:", existingUser);
+
     // If user with this email doesn't exist or password is incorrect
     if (
       !existingUser ||
@@ -154,4 +157,29 @@ const getMe = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
-export { register, login, logout, getMe };
+
+// Refresh Access Token with Refresh Token for security
+const refresh = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken)
+    return res.status(401).json({ message: "No refresh token" });
+
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+
+    const newAccessToken = jwt.sign(
+      { id: decoded.id },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "15m",
+      },
+    );
+
+    res.json({ accessToken: newAccessToken });
+  } catch (error) {
+    es.status(403).json({ message: "Invalid refresh token" });
+  }
+};
+
+export { register, login, logout, getMe, refresh };

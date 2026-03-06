@@ -1,22 +1,41 @@
 import jwt from "jsonwebtoken";
 
 export const generateToken = (userId, res) => {
-  const payload = { id: userId };
-
-  const token = jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+  // const payload = { id: userId };
+  // Temporary Access Token
+  const accessToken = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+    expiresIn: "15m",
+  });
+  // Refresh Token
+  const refreshToken = jwt.sign({ id: userId }, process.env.REFRESH_SECRET, {
+    expiresIn: "7d",
   });
 
-  // Set cookie for the user
-  res.cookie("jwt", token, {
+  // Set Refresh Token in a secure HTTP-only cookie
+  res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    // secure: process.env.NODE_ENV === "production",
-    // sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-    secure: false,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 1000 * 60 * 60 * 24 * 7,
+    secure: process.env.NODE_ENV === "production", // true on Render
+    sameSite: "strict",
+    path: "/auth/refresh", // Only sent to the refresh endpoint for security
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
+  // Send Access Token to frontend memory
+  return accessToken;
 
-  return token;
+  // const token = jwt.sign(payload, process.env.JWT_SECRET, {
+  //   expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+  // });
+
+  // // Set cookie for the user
+  // res.cookie("jwt", token, {
+  //   httpOnly: true,
+  //   // secure: process.env.NODE_ENV === "production",
+  //   // sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+  //   secure: false,
+  //   sameSite: "lax",
+  //   path: "/",
+  //   maxAge: 1000 * 60 * 60 * 24 * 7,
+  // });
+
+  // return token;
 };

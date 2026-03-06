@@ -15,7 +15,17 @@ model User {
   createdAt DateTime  @default(now())
   posts     Post[]
   comments  Comment[]
+  refreshToken RefreshToken[]
 } 
+
+model RefreshToken {
+  id        Int       @id @default(autoincrement())
+  token     String    @unique
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
 
 model Post { 
   id        Int       @id @default(autoincrement())

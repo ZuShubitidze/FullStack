@@ -7,38 +7,48 @@ const AuthContext = createContext<any>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>();
   const [loading, setLoading] = useState<boolean>();
+  const [accessToken, setAccessToken] = useState();
+
+  // Sync token with Axios instance
+  useEffect(() => {
+    import("@/api").then((module) => module.setTokenInApi(accessToken || null));
+  }, [accessToken]);
 
   // Check if user is logged in on every page load
   const checkAuth = async () => {
     try {
-      const res = await api.get("/auth/me", {
-        withCredentials: true,
-      });
-      // To see what backend sent
-      console.log("Full Axios Response:", res.data);
-
-      const userData = res.data.data?.user;
-      console.log("Setting User to Context:", userData);
-      console.log(res.data);
-
-      setUser(userData);
-    } catch (err: any) {
-      if (err.response?.status !== 401) {
-        console.error("Auth check failed:", err.message);
-      }
-
+      const res = await api.get("/auth/me"); // Interceptor now handles Bearer
+      setUser(res.data.data?.user);
+    } catch (err) {
       setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        // 1. Try to get a fresh AccessToken using the Refresh Cookie
+        const res = await api.get("/auth/refresh");
+        setAccessToken(res.data.accessToken);
+        // 2. Once we have the token, get user details
+        await checkAuth();
+      } catch (err) {
+        // If refresh fails, they are logged out
+        setUser(null);
+        setLoading(false);
+      }
+    };
+    initializeAuth();
+  }, []);
+
   // Logout
   const logout = async () => {
     try {
       await api.post("/auth/logout", {}, { withCredentials: true });
       setUser(null);
-      window.location.href = "/login"; // Redirect to login
+      // window.location.href = "/login"; // Redirect to login
     } catch (err) {
       console.error("Logout failed", err);
     }
@@ -46,7 +56,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     checkAuth();
-    console.log("Current Auth State:", user);
   }, []);
 
   return (
