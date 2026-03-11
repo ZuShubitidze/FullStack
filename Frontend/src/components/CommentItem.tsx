@@ -5,6 +5,7 @@ import { createComment } from "@/components/hooks/createComment";
 import { useAuth } from "@/context/Authcontext";
 import type { Comment } from "@/types/post.interface";
 import { updateCommentHook } from "./hooks/updateComment";
+import { toast } from "sonner";
 
 const CommentItem = ({
   comment,
@@ -40,11 +41,13 @@ const CommentItem = ({
     if (newReply) {
       setReplyText("");
       setIsReplying(false);
+      toast.success("Replied Successfully");
       // Update Comments
       onCommentAdded();
     }
   };
 
+  // Edit Comment
   const handleEditComment = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -53,6 +56,7 @@ const CommentItem = ({
     if (success) {
       setDisplayText(updateComment); // Update the UI immediately
       setIsUpdating(false);
+      toast.success("Comment successfully updated");
     }
   };
 
@@ -62,25 +66,28 @@ const CommentItem = ({
         <p className="text-xs font-bold">{comment.author?.name}</p>
         <p>{displayText}</p>
         {/* Edit Comment */}
-        <section className="p-2 ">
-          {user.id === comment.authorId && (
-            <Button onClick={() => setIsUpdating(true)} disabled={isUpdating}>
-              Edit Your Comment
-            </Button>
-          )}
-          {/* Update Comment Form */}
-          {isUpdating && (
-            <form onSubmit={handleEditComment}>
-              <Textarea
-                id="comment"
-                placeholder="Comment"
-                value={updateComment}
-                onChange={(e) => setUpdateComment(e.target.value)}
-              />
-              <Button>Comment</Button>
-            </form>
-          )}
-        </section>
+        {user && (
+          <section className="p-2 ">
+            {user.id === comment.authorId && (
+              <Button onClick={() => setIsUpdating(true)} disabled={isUpdating}>
+                Edit Your Comment
+              </Button>
+            )}
+            {/* Update Comment Form */}
+            {isUpdating && (
+              <form onSubmit={handleEditComment}>
+                <Textarea
+                  id="comment"
+                  placeholder="Comment"
+                  value={updateComment}
+                  onChange={(e) => setUpdateComment(e.target.value)}
+                />
+                <Button>Comment</Button>
+              </form>
+            )}
+          </section>
+        )}
+
         {/* Reply / Cancel Button */}
         {user && (
           <Button
@@ -94,7 +101,7 @@ const CommentItem = ({
       </div>
 
       {/* Localized Reply Form */}
-      {isReplying && (
+      {user && isReplying && (
         <form
           onSubmit={handleSubmitReply}
           className="ml-4 mt-2 flex flex-col gap-2"

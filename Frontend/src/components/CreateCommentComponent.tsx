@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Field } from "./ui/field";
 import { createComment } from "./hooks/createComment";
 import { Textarea } from "./ui/textarea";
+import { toast } from "sonner";
 
 const CreateCommentComponent = ({
   postId,
@@ -25,6 +26,7 @@ const CreateCommentComponent = ({
       setComment(""); // Clear input
       setIsCommenting(false);
       onCommentAdded(); // <--- This triggers the parent to re-fetch data!
+      toast.success("Comment successfully created");
     }
   };
 

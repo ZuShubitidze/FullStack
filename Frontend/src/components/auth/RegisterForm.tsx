@@ -8,6 +8,7 @@ import {
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { useRegister } from "../hooks/useRegister";
+import { toast } from "sonner";
 
 const RegisterForm = () => {
   const [name, setName] = useState<string>("");
@@ -16,9 +17,15 @@ const RegisterForm = () => {
 
   const { register } = useRegister();
 
+  // Handle registration
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await register(name, email, password);
+    try {
+      await register(name, email, password);
+      toast.success(`Welcome ${name}!`);
+    } catch (error) {
+      toast.error("Register error, please try again");
+    }
   };
 
   return (

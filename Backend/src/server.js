@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
 import cors from "cors";
 
 const app = express();
@@ -54,6 +55,7 @@ app.use(cookieParser());
 // API Routes
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
+app.use("/upload", uploadRoutes);
 app.use("/posts/:postId/comments", commentRoutes);
 
 const PORT = process.env.PORT || 3000;

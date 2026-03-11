@@ -2,7 +2,7 @@ import { Link } from "react-router";
 
 function ErrorBoundary() {
   return (
-    <div>
+    <div className="text-center mt-20">
       <h1>An error occurred</h1>
       <Link to="/">Go back to the Homepage</Link>
     </div>

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useLogin } from "@/components/hooks/useLogin";
+import { toast } from "sonner";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -18,7 +19,12 @@ const LoginForm = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await login(email, password);
+    try {
+      await login(email, password);
+      toast.success("Welcome back!");
+    } catch (err) {
+      toast.error("Invalid email or password");
+    }
   };
 
   return (

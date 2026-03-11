@@ -162,8 +162,10 @@ const getMe = async (req, res) => {
 const refresh = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
 
-  if (!refreshToken)
-    return res.status(401).json({ message: "No refresh token" });
+  if (!refreshToken) {
+    // Return 200 or 204 instead of 401 to keep the console clean
+    return res.status(200).json({ loggedIn: false, accessToken: null });
+  }
 
   try {
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);

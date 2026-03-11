@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "sonner";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -10,14 +11,20 @@ api.interceptors.response.use(
   (response) => response, // If request is successful, just return it
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
+    const errorMessage =
+      error.response?.data?.message || "Something went wrong";
 
     // !! CRITICAL: If the failed request WAS the refresh route, STOP HERE !!
-    if (originalRequest.url.includes("/auth/refresh")) {
+    if (originalRequest.url.includes("refresh") || originalRequest._retry) {
       return Promise.reject(error);
     }
 
     // If error is 401 and we haven't tried to refresh yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      (status === 401 && !originalRequest._retry) ||
+      (status === 404 && originalRequest.url.includes("refresh"))
+    ) {
       originalRequest._retry = true;
 
       try {
@@ -46,6 +53,9 @@ api.interceptors.response.use(
         console.log("Refresh failed, logging out");
         return Promise.reject(refreshError);
       }
+    } else {
+      // 3. SHOW TOAST for everything else (500, 403, 400, etc.)
+      toast.error(errorMessage);
     }
     return Promise.reject(error);
   },

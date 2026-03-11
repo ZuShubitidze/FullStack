@@ -6,7 +6,7 @@ const AuthContext = createContext<any>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>();
-  const [loading, setLoading] = useState<boolean>();
+  const [loading, setLoading] = useState<boolean>(true);
   const [accessToken, setAccessToken] = useState();
 
   // Sync token with Axios instance
@@ -26,21 +26,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Refresh Token and Check Auth
   useEffect(() => {
-    const initializeAuth = async () => {
+    const init = async () => {
       try {
         // 1. Try to get a fresh AccessToken using the Refresh Cookie
         const res = await api.get("/auth/refresh");
         setAccessToken(res.data.accessToken);
         // 2. Once we have the token, get user details
         await checkAuth();
-      } catch (err) {
-        // If refresh fails, they are logged out
-        setUser(null);
+      } catch (error) {
+      } finally {
         setLoading(false);
       }
     };
-    initializeAuth();
+    init();
   }, []);
 
   // Logout

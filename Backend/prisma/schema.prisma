@@ -37,6 +37,7 @@ model Post {
   author    User      @relation(fields: [authorId], references: [id]) 
   authorId  Int
   comments  Comment[]
+  Image     String?
 }
 
 model Comment {

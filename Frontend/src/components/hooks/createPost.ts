@@ -4,12 +4,14 @@ export const createPost = async (
   title: string,
   content: string,
   authorId: number,
+  imageUrl: string,
 ) => {
   try {
     const res = await api.post("/posts/createPost", {
       title,
       content,
       authorId,
+      imageUrl,
     });
     // Success
     if (res.data) {

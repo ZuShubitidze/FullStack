@@ -2,7 +2,7 @@ import { prisma } from "../lib/prisma";
 // Create
 const createPost = async (req, res) => {
   try {
-    const { title, content, authorId } = req.body;
+    const { title, content, authorId, imageUrl } = req.body;
 
     // Basic Validation
     if (!title || !content || !authorId) {
@@ -20,6 +20,7 @@ const createPost = async (req, res) => {
         author: {
           connect: { id: authorId },
         },
+        Image: imageUrl,
       },
     });
 
@@ -33,7 +34,7 @@ const createPost = async (req, res) => {
   }
 };
 
-// Fetch Posts
+// Fetch All Posts
 const fetchPosts = async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
@@ -67,7 +68,7 @@ const fetchPosts = async (req, res) => {
 const updatePost = async (req, res) => {
   try {
     const { id } = req.params; // Get ID from URL
-    const { title, content, published } = req.body;
+    const { title, content, published, imageUrl } = req.body;
 
     const updatedPost = await prisma.post.update({
       where: {
@@ -77,6 +78,7 @@ const updatePost = async (req, res) => {
         title,
         content,
         published,
+        imageUrl,
       },
     });
 
@@ -100,6 +102,11 @@ const updatePost = async (req, res) => {
 const fetchPost = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Guard
+    if (!id || isNaN(Number(id))) {
+      return res.status(400).json({ message: "Invalid or missing Post ID" });
+    }
 
     const post = await prisma.post.findUnique({
       where: {
@@ -142,8 +149,35 @@ const fetchPost = async (req, res) => {
     });
   } catch (error) {
     console.log("Prisma Error:", error);
-    res.status(500).json({ error: "Failed to fetch post" });
+    res.status(500).json({ error: "Failed to fetch specific post" });
   }
 };
 
-export { createPost, fetchPosts, updatePost, fetchPost };
+// Infinite Posts
+const getInfinitePosts = async (req, res) => {
+  const { cursor, limit = 5 } = req.query;
+
+  try {
+    const posts = await prisma.post.findMany({
+      take: Number(limit),
+      ...(cursor
+        ? {
+            skip: cursor ? 1 : 0, // Skip the cursor / last post if it exists
+            cursor: cursor ? { id: Number(cursor) } : undefined,
+          }
+        : {}),
+      orderBy: { createdAt: "desc" },
+      include: { author: { select: { name: true } } }, // Get Author Name with Post
+    });
+
+    const nextCursor =
+      posts.length === Number(limit) ? posts[posts.length - 1].id : null;
+
+    res.json({ posts, nextCursor });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching posts" });
+    console.log("Error", error, cursor, limit);
+  }
+};
+
+export { createPost, fetchPosts, updatePost, fetchPost, getInfinitePosts };

@@ -15,6 +15,7 @@ import { putPost } from "@/components/hooks/putPost";
 import { useAuth } from "@/context/Authcontext";
 import CommentItem from "@/components/CommentItem";
 import CreateCommentComponent from "@/components/CreateCommentComponent";
+import { toast } from "sonner";
 
 const PostPage = () => {
   const { id }: Readonly<Params<string>> = useParams();
@@ -23,11 +24,6 @@ const PostPage = () => {
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
-
-  // Get Post and Comments
-  useEffect(() => {
-    loadPost();
-  }, [id]);
 
   const loadPost = async () => {
     if (!id) return;
@@ -40,11 +36,21 @@ const PostPage = () => {
     }
   };
 
+  // Get Post and Comments
+  useEffect(() => {
+    loadPost();
+  }, [id]);
+
   // Update Post
   const handlePostUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!id) return;
+    // if no ID return;
+    if (!id) {
+      console.log("No ID");
+      return;
+    }
+
     try {
       const response = await putPost(id, title, content);
 
@@ -53,8 +59,10 @@ const PostPage = () => {
         setIsUpdating(false);
         // Update local state for UI
         setPost((prev) => (prev ? { ...prev, title, content } : prev));
+        toast.success("Post successfully updated");
       }
     } catch (error) {
+      toast.error("Error occured while updating post");
       console.error("Failed to update post:", error);
     }
   };
@@ -70,16 +78,17 @@ const PostPage = () => {
             </h1>
             <p>{post.content}</p>
             <p>Author: {post.author.name}</p>
+            {post.image && <img src={post.image} alt={post.title} />}
           </section>
           {/* Post Update Section */}
           <section>
             {/* If userID and post authorID are same, allow user to update */}
-            {user.id === post.authorId && (
+            {user && user.id === post.authorId && (
               <Button onClick={() => setIsUpdating(true)} disabled={isUpdating}>
                 Update your post
               </Button>
             )}
-            {/* Update Form */}
+            {/* Update PostForm */}
             {isUpdating && (
               <form onSubmit={handlePostUpdate} className="mt-20">
                 <FieldSet>
@@ -106,6 +115,7 @@ const PostPage = () => {
                       onChange={(e) => setContent(e.target.value)}
                     />
                   </Field>
+
                   <Button
                     type="button"
                     onClick={() => {
@@ -122,12 +132,14 @@ const PostPage = () => {
             )}
           </section>
           {/* Create Comment Section */}
-          <section>
-            <CreateCommentComponent
-              postId={Number(post.id)}
-              onCommentAdded={loadPost}
-            />
-          </section>
+          {user && (
+            <section>
+              <CreateCommentComponent
+                postId={Number(post.id)}
+                onCommentAdded={loadPost}
+              />
+            </section>
+          )}
           {/* Comments Section */}
           <section>
             <ul className="flex flex-col gap-10 p-10">
