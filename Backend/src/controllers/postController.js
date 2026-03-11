@@ -64,6 +64,33 @@ const fetchPosts = async (req, res) => {
   }
 };
 
+// Infinite Posts
+const getInfinitePosts = async (req, res) => {
+  const { cursor, limit = 5 } = req.query;
+
+  try {
+    const posts = await prisma.post.findMany({
+      take: Number(limit),
+      ...(cursor
+        ? {
+            skip: cursor ? 1 : 0, // Skip the cursor / last post if it exists
+            cursor: cursor ? { id: Number(cursor) } : undefined,
+          }
+        : {}),
+      orderBy: { createdAt: "desc" },
+      include: { author: { select: { name: true } } }, // Get Author Name with Post
+    });
+
+    const nextCursor =
+      posts.length === Number(limit) ? posts[posts.length - 1].id : null;
+
+    res.json({ posts, nextCursor });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching posts" });
+    console.log("Error", error, cursor, limit);
+  }
+};
+
 // Update
 const updatePost = async (req, res) => {
   try {
@@ -150,33 +177,6 @@ const fetchPost = async (req, res) => {
   } catch (error) {
     console.log("Prisma Error:", error);
     res.status(500).json({ error: "Failed to fetch specific post" });
-  }
-};
-
-// Infinite Posts
-const getInfinitePosts = async (req, res) => {
-  const { cursor, limit = 5 } = req.query;
-
-  try {
-    const posts = await prisma.post.findMany({
-      take: Number(limit),
-      ...(cursor
-        ? {
-            skip: cursor ? 1 : 0, // Skip the cursor / last post if it exists
-            cursor: cursor ? { id: Number(cursor) } : undefined,
-          }
-        : {}),
-      orderBy: { createdAt: "desc" },
-      include: { author: { select: { name: true } } }, // Get Author Name with Post
-    });
-
-    const nextCursor =
-      posts.length === Number(limit) ? posts[posts.length - 1].id : null;
-
-    res.json({ posts, nextCursor });
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching posts" });
-    console.log("Error", error, cursor, limit);
   }
 };
 

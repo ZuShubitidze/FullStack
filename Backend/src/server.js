@@ -55,7 +55,7 @@ app.use(cookieParser());
 // API Routes
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
-app.use("/upload", uploadRoutes);
+// app.use("/upload", uploadRoutes);
 app.use("/posts/:postId/comments", commentRoutes);
 
 const PORT = process.env.PORT || 3000;
