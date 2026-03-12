@@ -1,10 +1,10 @@
-import api from "@/api";
+import api, { setTokenInApi } from "@/api";
 import { useAuth } from "@/context/Authcontext";
 import { useNavigate } from "react-router";
 
 export const useLogin = () => {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const { setUser, setAccessToken } = useAuth();
 
   const login = async (email: string, password: string) => {
     try {
@@ -13,7 +13,10 @@ export const useLogin = () => {
       if (res.data) {
         // Update global state
         const userData = res.data.data.user;
+        const token = res.data.data.accessToken;
         setUser(userData);
+        setAccessToken(token);
+        setTokenInApi(token);
 
         navigate("/");
       }

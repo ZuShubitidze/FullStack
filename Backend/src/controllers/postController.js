@@ -66,7 +66,18 @@ const fetchPosts = async (req, res) => {
 
 // Infinite Posts
 const getInfinitePosts = async (req, res) => {
-  const { cursor, limit = 5 } = req.query;
+  const { cursor, limit = 10, search = "" } = req.query; // Search Params
+
+  // Search
+  let where = {};
+  if (search && search.trim() !== "") {
+    where = {
+      OR: [
+        { title: { contains: search, mode: "insensitive" } },
+        { content: { contains: search, mode: "insensitive" } },
+      ],
+    };
+  }
 
   try {
     const posts = await prisma.post.findMany({
@@ -77,6 +88,7 @@ const getInfinitePosts = async (req, res) => {
             cursor: cursor ? { id: Number(cursor) } : undefined,
           }
         : {}),
+      where,
       orderBy: { createdAt: "desc" },
       include: { author: { select: { name: true } } }, // Get Author Name with Post
     });
@@ -84,6 +96,7 @@ const getInfinitePosts = async (req, res) => {
     const nextCursor =
       posts.length === Number(limit) ? posts[posts.length - 1].id : null;
 
+    console.log(search);
     res.json({ posts, nextCursor });
   } catch (error) {
     res.status(500).json({ message: "Error fetching posts" });

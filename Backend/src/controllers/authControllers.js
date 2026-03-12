@@ -53,7 +53,7 @@ const register = async (req, res) => {
           email: newUser.email,
           createdAt: newUser.createdAt,
         },
-        token,
+        accessToken: token,
       },
     });
   } catch (error) {
@@ -102,10 +102,10 @@ const login = async (req, res) => {
       data: {
         user: {
           id: existingUser.id,
-          email: email,
+          email: existingUser.email,
           name: existingUser.name,
         },
-        token,
+        accessToken: token,
       },
     });
   } catch (error) {
@@ -117,9 +117,11 @@ const login = async (req, res) => {
 // Logout
 const logout = async (req, res) => {
   // Remove cookie
-  res.cookie("jwt", "", {
+  res.cookie("refreshToken", "", {
     httpOnly: true,
     expires: new Date(0),
+    sameSite: "none", // Must match the settings used to create it
+    secure: true,
   });
 
   res.status(200).json({

@@ -2,12 +2,20 @@ import api from "@/api";
 import type { User } from "@/types/user.interface";
 import { createContext, useContext, useEffect, useState } from "react";
 
+interface AuthContextType {
+  user: User;
+  setUser: (user: User) => void;
+  accessToken: string | null;
+  setAccessToken: (token: string | null) => void;
+  loading: boolean;
+}
+
 const AuthContext = createContext<any>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>();
+  const [user, setUser] = useState<User | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>();
   const [loading, setLoading] = useState<boolean>(true);
-  const [accessToken, setAccessToken] = useState();
 
   // Sync token with Axios instance
   useEffect(() => {
@@ -59,7 +67,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, loading }}>
+    <AuthContext.Provider
+      value={{ user, setUser, logout, loading, accessToken, setAccessToken }}
+    >
       {children}
     </AuthContext.Provider>
   );
