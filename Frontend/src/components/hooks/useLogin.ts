@@ -15,6 +15,7 @@ export const useLogin = () => {
         const userData = res.data.data.user;
         const token = res.data.data.accessToken;
         setUser(userData);
+        console.log("Token being set:", token, "Token");
         setAccessToken(token);
         setTokenInApi(token);
 

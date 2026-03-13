@@ -24,9 +24,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [accessToken]);
 
   // Check if user is logged in on every page load
-  const checkAuth = async () => {
+  const checkAuth = async (token: string) => {
     try {
-      const res = await api.get("/auth/me"); // Interceptor now handles Bearer
+      const res = await api.get("/auth/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      }); // Interceptor now handles Bearer
       setUser(res.data.data?.user);
     } catch (err) {
       setUser(null);
@@ -41,10 +43,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         // 1. Try to get a fresh AccessToken using the Refresh Cookie
         const res = await api.get("/auth/refresh");
-        setAccessToken(res.data.accessToken);
-        // 2. Once we have the token, get user details
-        await checkAuth();
+        const token = res.data.accessToken;
+        if (token) {
+          setAccessToken(token);
+          setTokenInApi(token);
+          // 2. Once we have the token, get user details
+          await checkAuth(token); // Pass token directly
+        }
       } catch (error) {
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -64,10 +71,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Logout failed", err);
     }
   };
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
 
   return (
     <AuthContext.Provider

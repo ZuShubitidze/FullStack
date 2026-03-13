@@ -10,16 +10,20 @@ export const protect = async (req, res, next) => {
     return res.status(401).json({ message: "No token provided" });
   }
 
-  let token;
+  // 1. Split the string into an array: ["Bearer", "eyJhbG..."]
+  const parts = authHeader.split(" ");
+
+  // 2. CRITICAL: Pass the SECOND part (the actual token string) to jwt.verify
+  const token = parts[1];
 
   // Check for token in the Authorization Header
-  if (authHeader && authHeader.startsWith("Bearer")) {
-    token = authHeader.split(" ")[1];
-  }
+  // if (authHeader && authHeader.startsWith("Bearer")) {
+  //   token = authHeader.split(" ")[1];
+  // }
   // Fallback
-  else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
-  }
+  // else if (req.cookies.jwt) {
+  //   token = req.cookies.jwt;
+  // }
 
   if (!token || token === "undefined") {
     return res.status(401).json({ error: "Not authorized, no token" });
