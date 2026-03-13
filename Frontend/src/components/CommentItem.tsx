@@ -30,7 +30,8 @@ const CommentItem = ({
     e.preventDefault();
     if (!replyText.trim()) return;
 
-    // Call your existing hook
+    if (!user) return;
+    // Create Reply
     const newReply = await createComment(
       replyText,
       user.id,

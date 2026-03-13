@@ -4,7 +4,7 @@ import { prisma } from "../lib/prisma.js";
 
 export const protect = async (req, res, next) => {
   const authHeader = req.headers.authorization;
-  console.log("Raw Header:", authHeader); // Check this in Render logs!
+  console.log("Raw Header:", authHeader); // Check Auth Header Token
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "No token provided" });
@@ -13,11 +13,8 @@ export const protect = async (req, res, next) => {
   let token;
 
   // Check for token in the Authorization Header
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
+  if (authHeader && authHeader.startsWith("Bearer")) {
+    token = authHeader.split(" ")[1];
   }
   // Fallback
   else if (req.cookies.jwt) {

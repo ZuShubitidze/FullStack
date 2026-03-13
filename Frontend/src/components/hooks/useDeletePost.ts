@@ -41,7 +41,9 @@ export const useDeletePost = () => {
     // 2. IF IT FAILS: Roll back to the previous state
     onError: (err, postId, context) => {
       queryClient.setQueryData(["posts"], context?.previousPosts);
-      toast.error("Failed to delete post. Please try again.");
+      toast.error(
+        `Failed to delete post ID - ${postId}. Please try again. Error - ${err}`,
+      );
     },
 
     // 3. ALWAYS: Refetch after success or error to stay in sync with DB

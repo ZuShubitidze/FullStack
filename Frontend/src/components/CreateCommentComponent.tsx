@@ -20,6 +20,7 @@ const CreateCommentComponent = ({
   const handleCreateComment = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!user) return;
     const result = await createComment(comment, user.id, postId);
 
     if (result) {
