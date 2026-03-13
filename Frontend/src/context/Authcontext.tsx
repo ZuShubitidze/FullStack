@@ -1,20 +1,21 @@
-import api from "@/api";
+import api, { setTokenInApi } from "@/api";
 import type { User } from "@/types/user.interface";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
-  user: User;
+  user: User | null;
   setUser: (user: User) => void;
   accessToken: string | null;
   setAccessToken: (token: string | null) => void;
   loading: boolean;
+  logout: () => void;
 }
 
-const AuthContext = createContext<any>(null);
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>();
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Sync token with Axios instance
@@ -56,7 +57,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await api.post("/auth/logout", {}, { withCredentials: true });
       setUser(null);
-      // window.location.href = "/login"; // Redirect to login
+      setAccessToken(null);
+      setTokenInApi(null); // Clear Axios header
+      window.location.href = "/login"; // Redirect to login
     } catch (err) {
       console.error("Logout failed", err);
     }
@@ -75,4 +78,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

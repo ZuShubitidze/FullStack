@@ -3,11 +3,14 @@ import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma.js";
 
 export const protect = async (req, res, next) => {
-  let token;
+  const authHeader = req.headers.authorization;
+  console.log("Raw Header:", authHeader); // Check this in Render logs!
 
-  // Get token
-  // const token = req.cookies.jwt;
-  // if (!token) return res.status(401).json({ error: "Not logged in" });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  let token;
 
   // Check for token in the Authorization Header
   if (
@@ -21,7 +24,7 @@ export const protect = async (req, res, next) => {
     token = req.cookies.jwt;
   }
 
-  if (!token) {
+  if (!token || token === "undefined") {
     return res.status(401).json({ error: "Not authorized, no token" });
   }
 
@@ -35,11 +38,8 @@ export const protect = async (req, res, next) => {
       select: { id: true, email: true, name: true },
     });
 
-    // if (!user) return res.status(401).json({ error: "User no longer exists" });
-
     next();
   } catch (err) {
-    // res.status(401).json({ error: "Invalid token" });
     console.error("JWT Error Name:", err.name); // e.g., 'TokenExpiredError' or 'JsonWebTokenError'
     console.error("JWT Error Message:", err.message); // e.g., 'invalid signature'
     res.status(401).json({ error: `Verification failed: ${err.message}` });

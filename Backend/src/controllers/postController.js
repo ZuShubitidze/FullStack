@@ -193,4 +193,46 @@ const fetchPost = async (req, res) => {
   }
 };
 
-export { createPost, fetchPosts, updatePost, fetchPost, getInfinitePosts };
+// Delete Post
+const deletePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    console.log(userId);
+
+    // Guard
+    if (!id || isNaN(Number(id))) {
+      return res.status(400).json({ message: "Invalid or missing Post ID" });
+    }
+
+    const post = await prisma.post.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    // Check ownership
+    if (post.authorId !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You can only delete your own posts" });
+    }
+
+    // Success
+    await prisma.post.delete({ where: { id: Number(id) } });
+    res.status(200).json({ message: `Deteled post ${post}` });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+    console.log("Failed to delete post ");
+  }
+};
+
+export {
+  createPost,
+  fetchPosts,
+  updatePost,
+  fetchPost,
+  getInfinitePosts,
+  deletePost,
+};

@@ -16,6 +16,7 @@ import { useAuth } from "@/context/Authcontext";
 import CommentItem from "@/components/CommentItem";
 import CreateCommentComponent from "@/components/CreateCommentComponent";
 import { toast } from "sonner";
+import { useDeletePost } from "@/components/hooks/useDeletePost";
 
 const PostPage = () => {
   const { id }: Readonly<Params<string>> = useParams();
@@ -24,6 +25,8 @@ const PostPage = () => {
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
+  const { mutate: deletePost } = useDeletePost();
+  const isOwner = user?.id === post?.authorId;
 
   const loadPost = async () => {
     if (!id) return;
@@ -79,6 +82,14 @@ const PostPage = () => {
             <p>{post.content}</p>
             <p>Author: {post.author.name}</p>
             {post.image && <img src={post.image} alt={post.title} />}
+            {isOwner && (
+              <Button
+                onClick={() => deletePost(post.id)}
+                className="text-red-500"
+              >
+                Delete
+              </Button>
+            )}
           </section>
           {/* Post Update Section */}
           <section>

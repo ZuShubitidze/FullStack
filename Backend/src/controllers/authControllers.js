@@ -119,9 +119,9 @@ const logout = async (req, res) => {
   // Remove cookie
   res.cookie("refreshToken", "", {
     httpOnly: true,
-    expires: new Date(0),
-    sameSite: "none", // Must match the settings used to create it
-    secure: true,
+    secure: isProd, // true on Render, false on Localhost
+    sameSite: isProd ? "none" : "lax", // "none" for Vercel -> Render
+    path: "/auth/refresh", // Only sent to the refresh endpoint for security
   });
 
   res.status(200).json({

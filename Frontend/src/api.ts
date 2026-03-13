@@ -15,7 +15,7 @@ api.interceptors.response.use(
     const errorMessage =
       error.response?.data?.message || "Something went wrong";
 
-    // !! CRITICAL: If the failed request WAS the refresh route, STOP HERE !!
+    // If the failed request WAS the refresh route, STOP HERE
     if (originalRequest.url.includes("refresh") || originalRequest._retry) {
       return Promise.reject(error);
     }
@@ -65,7 +65,11 @@ let token: string | null = null;
 
 // Function to update the token from your AuthContext
 export const setTokenInApi = (newToken: string | null) => {
+  if (!newToken || newToken === "undefined" || newToken === "null") {
+    delete api.defaults.headers.common["Authorization"];
+  }
   token = newToken;
+  api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 };
 
 api.interceptors.request.use((config) => {

@@ -1,5 +1,6 @@
 import api from "@/api";
-import { createPost } from "@/components/hooks/createPost";
+import { useCreatePost } from "@/components/hooks/useCreatePost";
+import { SkeletonCard } from "@/components/SkeletonCard";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -55,17 +56,28 @@ const CreatePostPage = () => {
     return res.data.secure_url; // The image link for Neon
   };
 
+  const { mutate: create, isPending } = useCreatePost();
+
   // Create Post
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Create Post
     const postLogic = async () => {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
       let imageUrl = "";
       if (image) {
         imageUrl = await uploadToCloudinary(image);
       }
       // Give title, content, userID and Image to hook that calls backend
-      return createPost(title, content, user.id, imageUrl);
+      create(
+        { title, content, authorId: user.id, imageUrl },
+        {
+          onSuccess: () => navigate("/posts"),
+        },
+      );
     };
 
     toast.promise(postLogic(), {
@@ -74,9 +86,11 @@ const CreatePostPage = () => {
         navigate("/posts");
         return "Post published!";
       },
-      error: "Failed to create post",
+      error: (err) => err?.message || "Failed to create post",
     });
   };
+
+  if (isPending) return <SkeletonCard />;
 
   return (
     <main>
