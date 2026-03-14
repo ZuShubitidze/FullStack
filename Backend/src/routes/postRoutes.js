@@ -7,7 +7,7 @@ import {
   getInfinitePosts,
   updatePost,
 } from "../controllers/postController.js";
-import { protect } from "../middleware/protect";
+import { protect } from "../middleware/protect.js";
 
 const router = express.Router();
 
