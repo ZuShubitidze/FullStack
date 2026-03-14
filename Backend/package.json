@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx prisma generate && tsc",
+    "start": "node dist/src/server.js",
     "dev": "tsx watch src/server.js",
-    "build": "tsc",
-    "start": "node src/server.js",
     "db:push": "prisma db push",
     "studio": "prisma studio"
   },

@@ -12,13 +12,15 @@
     },
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "target": "ES2022",
+    // "target": "ES2022",
+    "target": "ESNext",
     "types": ["node"],
     "esModuleInterop": true,
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
     "baseUrl": ".",
     "outDir": "./dist",
+    "rootDir": "./",
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -46,7 +48,7 @@
     "jsx": "react-jsx",
     "allowJs": true,
     "verbatimModuleSyntax": true,
-    "isolatedModules": true,
+    // "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true
@@ -55,8 +57,11 @@
     "**/*.ts",
     ".env",
     "prisma/**/*.ts",
+    "prisma/**/*",
     "src/**/*.ts",
+    "src/**/*",
+    "src/*",
     "src/lib/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist", "generated"]
 }
