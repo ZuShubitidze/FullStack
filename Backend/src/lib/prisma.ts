@@ -1,7 +1,7 @@
 import "dotenv/config"; // Load .env variables
 import { PrismaPg } from "@prisma/adapter-pg";
 import pkg from "pg";
-import { PrismaClient } from "../../generated/prisma/client.ts";
+import { PrismaClient } from "generated/prisma/client.ts";
 
 const { Pool } = pkg;
 

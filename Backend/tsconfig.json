@@ -10,7 +10,8 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "ES2022",
-    "types": [],
+    "types": ["node"],
+    "esModuleInterop": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "baseUrl": ".",
@@ -47,6 +48,12 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
-  "include": ["**/*.ts", ".env"],
+  "include": [
+    "**/*.ts",
+    ".env",
+    "prisma/**/*.ts",
+    "src/**/*.ts",
+    "src/lib/*.ts"
+  ],
   "exclude": ["node_modules"]
 }
