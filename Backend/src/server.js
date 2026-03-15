@@ -14,7 +14,7 @@ const allowedOrigins = [
   "http://localhost:5173", // Local Vite/React dev
   process.env.FRONTEND_URL, // Vercel URL
 ];
-// Allow domains access
+// Allow domains access CORS
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -71,6 +71,9 @@ const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+app.put("/test-profile", (req, res) => {
+  res.json({ message: "PUT route is alive!" });
+});
 app.get("/", (req, res) => {
-  res.send("VERSION 2.0 - TESTING UPLOAD ROUTE");
+  res.send("VERSION 3.0 - TESTING UPLOAD ROUTE");
 });

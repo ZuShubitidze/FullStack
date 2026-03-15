@@ -41,7 +41,7 @@ const PostPage = () => {
         onSuccess: () => {
           setIsUpdating(false); // Close the form only if it actually worked!
           toast.success("Changes saved.");
-          console.log(title, content);
+          console.log("Updated Post:", title, content);
         },
       },
     );
@@ -67,7 +67,7 @@ const PostPage = () => {
             </h1>
             <p>{post.content}</p>
             <p>Author: {post.author.name}</p>
-            {post.image && <img src={post.image} alt={post.title} />}
+            {post.Image && <img src={post.Image} alt={post.title} />}
             {isOwner && (
               <Button
                 onClick={() => deletePost(post.id)}

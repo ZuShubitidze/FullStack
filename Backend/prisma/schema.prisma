@@ -12,6 +12,7 @@ model User {
   password  String 
   name      String? 
   createdAt DateTime  @default(now())
+  Image     String?
   posts     Post[]
   comments  Comment[]
   refreshToken RefreshToken[]

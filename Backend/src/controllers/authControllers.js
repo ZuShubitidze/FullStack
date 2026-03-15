@@ -185,4 +185,17 @@ const refresh = async (req, res) => {
   }
 };
 
-export { register, login, logout, getMe, refresh };
+const updateProfilePicture = async (req, res) => {
+  const { userId, imageUrl } = req.body;
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { Image: imageUrl }, // Match capital 'I'
+    });
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: "Update failed" });
+  }
+};
+
+export { register, login, logout, getMe, refresh, updateProfilePicture };

@@ -8,7 +8,7 @@ export interface Post {
   authorId: number;
   author: User;
   comments: Comment[];
-  image?: string;
+  Image?: string;
 }
 
 export interface Comment {

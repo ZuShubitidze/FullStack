@@ -1,4 +1,3 @@
-import api from "@/api";
 import { useCreatePost } from "@/hooks/useCreatePost";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { Button } from "@/components/ui/button";
@@ -10,10 +9,9 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/Authcontext";
-import axios from "axios";
-import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { uploadToCloudinary } from "@/hooks/uploadToCloudinary";
 
 const CreatePostPage = () => {
   const { user } = useAuth();
@@ -21,7 +19,6 @@ const CreatePostPage = () => {
   const [content, setContent] = useState<string>("");
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   // Image
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,34 +28,13 @@ const CreatePostPage = () => {
       setPreview(URL.createObjectURL(file)); // Show local preview
     }
   };
-  // Upload to Cloudinary
-  const uploadToCloudinary = async (file: File) => {
-    // Signature Params
-    const timestamp = Math.round(new Date().getTime() / 1000);
-    const folder = "posts";
 
-    // Get Signature from my API
-    const {
-      data: { signature },
-    } = await api.post("/upload/sign-upload", {
-      paramsToSign: { timestamp, folder },
-    });
-
-    // Append Data
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
-    formData.append("timestamp", timestamp.toString());
-    formData.append("signature", signature);
-    formData.append("folder", "posts");
-
-    // Upload directly to Cloudinary
-    const res = await axios.post(
-      `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
-      formData,
-    );
-    return res.data.secure_url; // The image link for Neon
-  };
+  // Cleanup function to free up memory
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   // Create Post
   const { mutateAsync: create, isPending } = useCreatePost();
@@ -73,15 +49,10 @@ const CreatePostPage = () => {
       let imageUrl = "";
       if (image) {
         // Upload to Cloudinary first
-        imageUrl = await uploadToCloudinary(image);
+        imageUrl = await uploadToCloudinary(image, "posts");
       }
       // Give title, content, userID and Image to useMutate hook
-      create(
-        { title, content, authorId: user.id, imageUrl },
-        {
-          onSuccess: () => navigate("/posts"),
-        },
-      );
+      return await create({ title, content, authorId: user.id, imageUrl });
     };
 
     toast.promise(postLogic(), {
