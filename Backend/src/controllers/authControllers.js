@@ -187,7 +187,7 @@ const updateProfilePicture = async (req, res) => {
   const { userId, imageUrl } = req.body;
   try {
     const updatedUser = await prisma.user.update({
-      where: { id: userId },
+      where: { id: Number(userId) },
       data: { Image: imageUrl }, // Match capital 'I'
     });
     res.json(updatedUser);
