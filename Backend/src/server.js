@@ -5,13 +5,10 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
-// import uploadRoutes from "./routes/uploadRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
 import cors from "cors";
 
 const app = express();
-// Middleware
-app.use(express.json());
-
 // Allowed Domains
 const allowedOrigins = [
   "http://localhost:5173", // Local Vite/React dev
@@ -37,6 +34,8 @@ app.use(
     credentials: true, // Allow the browser to send/receive the JWT cookie
   }),
 );
+// Middleware
+app.use(express.json());
 
 // Ensure the server is running with DatabaseURL
 async function main() {
@@ -52,10 +51,19 @@ main();
 
 app.use(cookieParser());
 
+app.use((req, res, next) => {
+  console.log(`${req.method} request to: ${req.url}`);
+  next();
+});
+
+app.post("/test-upload", (req, res) => {
+  res.json({ message: "Server is alive" });
+});
+
 // API Routes
+app.use("/upload", uploadRoutes);
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
-// app.use("/upload", uploadRoutes);
 app.use("/posts/:postId/comments", commentRoutes);
 
 const PORT = process.env.PORT || 3000;
@@ -64,5 +72,5 @@ const server = app.listen(PORT, () => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Main page server");
+  res.send("VERSION 2.0 - TESTING UPLOAD ROUTE");
 });

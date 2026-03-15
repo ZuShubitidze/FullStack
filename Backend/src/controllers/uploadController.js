@@ -1,6 +1,19 @@
-// const upload = async (req, res) => {
-//   res.status(200).json({ message: "Upload Route Works" });
-//   console.log("Upload Route Works");
-// };
+import cloudinary from "../lib/cloudinary.js";
 
-// export { upload };
+const getSignature = (req, res) => {
+  console.log("Hit sign-upload route!");
+  const { paramsToSign } = req.body; // timestamp, folder: "posts" ...
+
+  try {
+    const signature = cloudinary.utils.api_sign_request(
+      paramsToSign,
+      process.env.CLOUDINARY_API_SECRET,
+    );
+
+    res.status(200).json({ signature });
+  } catch (error) {
+    res.status(500).json({ message: "Signature generation failed" });
+  }
+};
+
+export { getSignature };

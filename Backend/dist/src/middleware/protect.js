@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma.js";
 export const protect = async (req, res, next) => {
     const authHeader = req.headers.authorization;
-    console.log("Raw Header:", authHeader); // Check Auth Header Token
+    console.log("Raw Header from protect.js:", authHeader); // Check Auth Header Token
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return res.status(401).json({ message: "No token provided" });
     }
@@ -11,14 +11,6 @@ export const protect = async (req, res, next) => {
     const parts = authHeader.split(" ");
     // 2. CRITICAL: Pass the SECOND part (the actual token string) to jwt.verify
     const token = parts[1];
-    // Check for token in the Authorization Header
-    // if (authHeader && authHeader.startsWith("Bearer")) {
-    //   token = authHeader.split(" ")[1];
-    // }
-    // Fallback
-    // else if (req.cookies.jwt) {
-    //   token = req.cookies.jwt;
-    // }
     if (!token || token === "undefined") {
         return res.status(401).json({ error: "Not authorized, no token" });
     }

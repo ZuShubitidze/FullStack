@@ -1,16 +1,13 @@
-import "dotenv/config"; // Load .env variables
+import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pkg from "pg";
-import { PrismaClient } from "generated/prisma/client.ts";
+import { PrismaClient } from "@prisma/client";
+// Use this specific destructuring for ESM compatibility
 const { Pool } = pkg;
-// 1. Create the connection pool for PostgreSQL
 const connectionString = process.env.DATABASE_URL;
+// Explicitly type the pool if it keeps complaining
 const pool = new Pool({ connectionString });
-// 2. Initialize the Prisma Adapter
-// const adapter = new PrismaPg(pool);
-const adapter = new PrismaPg({
-    connectionString: process.env.DATABASE_URL,
-});
-// 3. Create the Prisma Client instance
+// Pass the pool directly to the adapter
+const adapter = new PrismaPg(pool);
 export const prisma = new PrismaClient({ adapter });
 //# sourceMappingURL=prisma.js.map

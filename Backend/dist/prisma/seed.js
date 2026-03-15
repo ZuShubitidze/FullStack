@@ -1,4 +1,4 @@
-import { prisma } from "src/lib/prisma.ts";
+import { prisma } from "src/lib/prisma.js";
 async function main() {
     // Replace 'user' with your actual model name
     await prisma.user.create({

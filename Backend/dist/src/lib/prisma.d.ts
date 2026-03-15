@@ -1,3 +1,7 @@
 import "dotenv/config";
-export declare const prisma: import("@generated/prisma/internal/class.js").PrismaClient<never, import("@generated/prisma/internal/prismaNamespace.js").GlobalOmitConfig | undefined, import("@prisma/client/runtime/client").DefaultArgs>;
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@prisma/client";
+export declare const prisma: PrismaClient<{
+    adapter: PrismaPg;
+}, never, import("@prisma/client/runtime/client").DefaultArgs>;
 //# sourceMappingURL=prisma.d.ts.map

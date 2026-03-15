@@ -1,11 +1,11 @@
 import "dotenv/config";
-import { prisma } from "./lib/prisma.ts";
+import { prisma } from "./lib/prisma.js";
 import express from "express";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
-// import uploadRoutes from "./routes/uploadRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
 import cors from "cors";
 const app = express();
 // Middleware
@@ -49,7 +49,7 @@ app.use(cookieParser());
 // API Routes
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
-// app.use("/upload", uploadRoutes);
+app.use("/upload", uploadRoutes);
 app.use("/posts/:postId/comments", commentRoutes);
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {

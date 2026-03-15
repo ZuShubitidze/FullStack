@@ -96,7 +96,6 @@ const getInfinitePosts = async (req, res) => {
     const nextCursor =
       posts.length === Number(limit) ? posts[posts.length - 1].id : null;
 
-    console.log(search);
     res.json({ posts, nextCursor });
   } catch (error) {
     res.status(500).json({ message: "Error fetching posts" });
@@ -198,8 +197,6 @@ const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
-
-    console.log(userId);
 
     // Guard
     if (!id || isNaN(Number(id))) {

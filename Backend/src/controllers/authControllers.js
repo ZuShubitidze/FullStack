@@ -145,7 +145,7 @@ const getMe = async (req, res) => {
     });
     // Error
     if (!fullUser) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(200).json({ message: "User not found" });
     }
     // Send full user to frontend
     res.status(200).json({
@@ -154,7 +154,6 @@ const getMe = async (req, res) => {
         user: fullUser,
       },
     });
-    console.log(fullUser);
   } catch (error) {
     res.status(500).json({ error: "Server error" });
   }
@@ -182,7 +181,7 @@ const refresh = async (req, res) => {
 
     res.json({ accessToken: newAccessToken });
   } catch (error) {
-    es.status(403).json({ message: "Invalid refresh token" });
+    res.status(403).json({ message: "Invalid refresh token" });
   }
 };
 
