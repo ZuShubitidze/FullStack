@@ -1,5 +1,6 @@
 import api from "@/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export const useCreatePost = () => {
   const queryClient = useQueryClient();
@@ -17,6 +18,7 @@ export const useCreatePost = () => {
     onSuccess: () => {
       // Refresh the feed
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      toast.success("Post published!");
     },
   });
 };

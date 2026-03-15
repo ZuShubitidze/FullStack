@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/field";
 import { useState } from "react";
 import { Input } from "../ui/input";
-import { useRegister } from "../hooks/useRegister";
+import { useRegister } from "../../hooks/useRegister";
 import { toast } from "sonner";
 
 const RegisterForm = () => {

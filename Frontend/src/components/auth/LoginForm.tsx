@@ -7,7 +7,7 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useLogin } from "@/components/hooks/useLogin";
+import { useLogin } from "@/hooks/useLogin";
 import { toast } from "sonner";
 
 const LoginForm = () => {

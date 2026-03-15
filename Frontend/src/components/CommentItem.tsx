@@ -1,20 +1,17 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { createComment } from "@/components/hooks/createComment";
 import { useAuth } from "@/context/Authcontext";
 import type { Comment } from "@/types/post.interface";
-import { updateCommentHook } from "./hooks/updateComment";
-import { toast } from "sonner";
+import { useUpdateComment } from "../hooks/useUpdateComment";
+import { useCreateComment } from "../hooks/useCreateComment";
 
 const CommentItem = ({
   comment,
   postId,
-  onCommentAdded,
 }: {
   comment: Comment;
   postId: number;
-  onCommentAdded: () => void;
 }) => {
   // Add a local state to hold the 'live' version of the text
   const [displayText, setDisplayText] = useState(comment.comment);
@@ -26,39 +23,35 @@ const CommentItem = ({
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
   // Reply
-  const handleSubmitReply = async (e: React.FormEvent) => {
+  const { mutate: create, isPending: isReplyPending } =
+    useCreateComment(postId);
+  const onSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!replyText.trim()) return;
-
     if (!user) return;
-    // Create Reply
-    const newReply = await createComment(
-      replyText,
-      user.id,
-      postId,
-      comment.id,
+    create(
+      { comment: replyText, authorId: user.id, postId, parentId: comment.id },
+      {
+        onSuccess: () => {
+          setIsReplying(false);
+        },
+      },
     );
-
-    if (newReply) {
-      setReplyText("");
-      setIsReplying(false);
-      toast.success("Replied Successfully");
-      // Update Comments
-      onCommentAdded();
-    }
   };
 
   // Edit Comment
-  const handleEditComment = async (e: React.FormEvent) => {
+  const { mutate: update, isPending } = useUpdateComment();
+  const onSubmitEditComment = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const success = await updateCommentHook(updateComment, postId, comment.id);
-
-    if (success) {
-      setDisplayText(updateComment); // Update the UI immediately
-      setIsUpdating(false);
-      toast.success("Comment successfully updated");
-    }
+    update(
+      { postId, updateComment, id: comment.id },
+      {
+        onSuccess: () => {
+          setIsUpdating(false);
+          setDisplayText(updateComment);
+        },
+      },
+    );
   };
 
   return (
@@ -76,20 +69,23 @@ const CommentItem = ({
             )}
             {/* Update Comment Form */}
             {isUpdating && (
-              <form onSubmit={handleEditComment}>
+              <form onSubmit={onSubmitEditComment}>
                 <Textarea
                   id="comment"
                   placeholder="Comment"
                   value={updateComment}
                   onChange={(e) => setUpdateComment(e.target.value)}
                 />
-                <Button>Comment</Button>
+                <Button disabled={isPending}>
+                  {isPending ? "Updating Comment..." : "Update Comment"}
+                </Button>
+                <Button onClick={() => setIsUpdating(false)}>Cancel</Button>
               </form>
             )}
           </section>
         )}
 
-        {/* Reply / Cancel Button */}
+        {/* Reply Button */}
         {user && (
           <Button
             variant="ghost"
@@ -104,7 +100,7 @@ const CommentItem = ({
       {/* Localized Reply Form */}
       {user && isReplying && (
         <form
-          onSubmit={handleSubmitReply}
+          onSubmit={onSubmitReply}
           className="ml-4 mt-2 flex flex-col gap-2"
         >
           <Textarea
@@ -112,18 +108,14 @@ const CommentItem = ({
             onChange={(e) => setReplyText(e.target.value)}
             placeholder="Write a reply..."
           />
-          <Button type="submit">Send Reply</Button>
+          <Button type="submit">{isReplyPending ? "Replying" : "Reply"}</Button>
+          <Button onClick={() => setIsReplying(false)}>Cancel</Button>
         </form>
       )}
 
       {/* Recursion: Render replies of THIS comment */}
       {comment.replies?.map((reply: any) => (
-        <CommentItem
-          key={reply.id}
-          comment={reply}
-          postId={postId}
-          onCommentAdded={onCommentAdded}
-        />
+        <CommentItem key={reply.id} comment={reply} postId={postId} />
       ))}
     </div>
   );

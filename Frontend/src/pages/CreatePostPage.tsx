@@ -1,5 +1,5 @@
 import api from "@/api";
-import { useCreatePost } from "@/components/hooks/useCreatePost";
+import { useCreatePost } from "@/hooks/useCreatePost";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,15 +33,18 @@ const CreatePostPage = () => {
   };
   // Upload to Cloudinary
   const uploadToCloudinary = async (file: File) => {
-    // 1. Get Signature from your Render Backend
+    // Signature Params
     const timestamp = Math.round(new Date().getTime() / 1000);
+    const folder = "posts";
+
+    // Get Signature from my API
     const {
       data: { signature },
     } = await api.post("/upload/sign-upload", {
-      paramsToSign: { timestamp, folder: "posts" },
+      paramsToSign: { timestamp, folder },
     });
 
-    // 2. Upload directly to Cloudinary
+    // Append Data
     const formData = new FormData();
     formData.append("file", file);
     formData.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY);
@@ -49,16 +52,16 @@ const CreatePostPage = () => {
     formData.append("signature", signature);
     formData.append("folder", "posts");
 
+    // Upload directly to Cloudinary
     const res = await axios.post(
-      `https://api.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
+      `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
       formData,
     );
     return res.data.secure_url; // The image link for Neon
   };
 
-  const { mutate: create, isPending } = useCreatePost();
-
   // Create Post
+  const { mutateAsync: create, isPending } = useCreatePost();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -69,9 +72,10 @@ const CreatePostPage = () => {
       }
       let imageUrl = "";
       if (image) {
+        // Upload to Cloudinary first
         imageUrl = await uploadToCloudinary(image);
       }
-      // Give title, content, userID and Image to hook that calls backend
+      // Give title, content, userID and Image to useMutate hook
       create(
         { title, content, authorId: user.id, imageUrl },
         {
@@ -83,7 +87,6 @@ const CreatePostPage = () => {
     toast.promise(postLogic(), {
       loading: "Uploading and posting...",
       success: () => {
-        navigate("/posts");
         return "Post published!";
       },
       error: (err) => err?.message || "Failed to create post",

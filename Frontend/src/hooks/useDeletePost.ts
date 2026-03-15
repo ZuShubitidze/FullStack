@@ -3,10 +3,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/api";
 import { toast } from "sonner";
 import { useAuth } from "@/context/Authcontext";
+import { useNavigate } from "react-router";
 
 export const useDeletePost = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: async (postId: number) => {
@@ -49,6 +51,7 @@ export const useDeletePost = () => {
     // 3. ALWAYS: Refetch after success or error to stay in sync with DB
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      navigate("/posts");
     },
   });
 };

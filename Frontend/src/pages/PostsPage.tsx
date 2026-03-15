@@ -1,5 +1,5 @@
-import { useDebounce } from "@/components/hooks/useDebounce";
-import { usePosts } from "@/components/hooks/usePosts";
+import { useDebounce } from "@/hooks/useDebounce";
+import { usePosts } from "@/hooks/usePosts";
 import PostCard from "@/components/PostCard";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { Input } from "@/components/ui/input";
@@ -62,7 +62,7 @@ const PostsPage = () => {
           <section className="flex flex-col gap-4">
             <h1 className="text-3xl text-center my-4">Posts</h1>
             {allPosts.map((post) => (
-              <PostCard post={post} />
+              <PostCard post={post} key={post.id} />
             ))}
           </section>
         ) : (

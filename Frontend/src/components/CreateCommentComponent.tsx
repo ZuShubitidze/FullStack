@@ -2,40 +2,34 @@ import { useAuth } from "@/context/Authcontext";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Field } from "./ui/field";
-import { createComment } from "./hooks/createComment";
 import { Textarea } from "./ui/textarea";
-import { toast } from "sonner";
+import { useCreateComment } from "../hooks/useCreateComment";
 
-const CreateCommentComponent = ({
-  postId,
-  onCommentAdded,
-}: {
-  postId: number;
-  onCommentAdded: () => void;
-}) => {
+const CreateCommentComponent = ({ postId }: { postId: number }) => {
   const { user } = useAuth();
   const [comment, setComment] = useState<string>("");
   const [isCommenting, setIsCommenting] = useState<boolean>(false);
 
-  const handleCreateComment = async (e: React.FormEvent) => {
+  // Create Comment
+  const { mutate: create, isPending } = useCreateComment(postId);
+  const onSubmitCreateComment = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!user) return;
-    const result = await createComment(comment, user.id, postId);
-
-    if (result) {
-      setComment(""); // Clear input
-      setIsCommenting(false);
-      onCommentAdded(); // <--- This triggers the parent to re-fetch data!
-      toast.success("Comment successfully created");
-    }
+    create(
+      { comment, authorId: user.id, postId },
+      {
+        onSuccess: () => {
+          setIsCommenting(false);
+        },
+      },
+    );
   };
 
   return (
     <div>
       {/* Commenting Section */}
       <section>
-        {/* Allow only logged in user to comment */}
+        {/* Check User */}
         {user && (
           <Button
             onClick={() => setIsCommenting(true)}
@@ -47,7 +41,7 @@ const CreateCommentComponent = ({
         )}
         {/* Comment Form */}
         {isCommenting && (
-          <form onSubmit={handleCreateComment}>
+          <form onSubmit={onSubmitCreateComment}>
             <Field>
               <Textarea
                 id="comment"
@@ -55,7 +49,9 @@ const CreateCommentComponent = ({
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
               />
-              <Button>Comment</Button>
+              <Button disabled={isPending}>
+                {isPending ? "Commenting..." : "Comment"}
+              </Button>
             </Field>
           </form>
         )}

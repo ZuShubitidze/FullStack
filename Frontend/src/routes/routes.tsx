@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import { lazy } from "react";
 import Root from "./Root";
-import ErrorBoundary from "@/components/ErrorBoundary";
+import ErrorBoundary from "@/components/error/ErrorBoundary";
 import HomePage from "@/pages/HomePage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";

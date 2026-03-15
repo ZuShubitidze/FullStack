@@ -1,6 +1,4 @@
-import { getPost } from "@/components/hooks/getPost";
 import { Button } from "@/components/ui/button";
-import type { Post } from "@/types/post.interface";
 import React, { useEffect, useState } from "react";
 import { useParams, type Params } from "react-router";
 import {
@@ -11,64 +9,52 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { putPost } from "@/components/hooks/putPost";
 import { useAuth } from "@/context/Authcontext";
 import CommentItem from "@/components/CommentItem";
 import CreateCommentComponent from "@/components/CreateCommentComponent";
 import { toast } from "sonner";
-import { useDeletePost } from "@/components/hooks/useDeletePost";
+import { useDeletePost } from "@/hooks/useDeletePost";
+import { usePost } from "@/hooks/usePost";
+import { SkeletonCard } from "@/components/SkeletonCard";
+import ErrorComponent from "@/components/error/ErrorComponent";
+import { useUpdatePost } from "@/hooks/useUpdatePost";
 
 const PostPage = () => {
   const { id }: Readonly<Params<string>> = useParams();
   const { user } = useAuth();
-  const [post, setPost] = useState<Post>();
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
+  // Delete
   const { mutate: deletePost } = useDeletePost();
+  // Fetch
+  const { data: post, isLoading, error } = usePost(id);
   const isOwner = user?.id === post?.authorId;
-
-  const loadPost = async () => {
-    if (!id) return;
-    const postData = await getPost(id);
-
-    if (postData) {
-      setPost(postData);
-      setTitle(postData.title);
-      setContent(postData.content || "");
-    }
-  };
-
-  // Get Post and Comments
-  useEffect(() => {
-    loadPost();
-  }, [id]);
-
   // Update Post
-  const handlePostUpdate = async (e: React.FormEvent) => {
+  const { mutate: update, isPending } = useUpdatePost();
+  const handlePostUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // if no ID return;
-    if (!id) {
-      console.log("No ID");
-      return;
-    }
-
-    try {
-      const response = await putPost(id, title, content);
-
-      if (response) {
-        // Close form
-        setIsUpdating(false);
-        // Update local state for UI
-        setPost((prev) => (prev ? { ...prev, title, content } : prev));
-        toast.success("Post successfully updated");
-      }
-    } catch (error) {
-      toast.error("Error occured while updating post");
-      console.error("Failed to update post:", error);
-    }
+    if (!post) return;
+    update(
+      { postId: post.id, title, content },
+      {
+        onSuccess: () => {
+          setIsUpdating(false); // Close the form only if it actually worked!
+          toast.success("Changes saved.");
+          console.log(title, content);
+        },
+      },
+    );
   };
+
+  useEffect(() => {
+    if (post) {
+      setTitle(post.title);
+      setContent(post.content);
+    }
+  }, [post]);
+
+  if (error) return;
 
   return (
     <main>
@@ -126,9 +112,11 @@ const PostPage = () => {
                       onChange={(e) => setContent(e.target.value)}
                     />
                   </Field>
-
+                  {/* Update Button */}
+                  <Button type="submit" disabled={isPending}>
+                    {isPending ? "Updating..." : "Update"}
+                  </Button>
                   <Button
-                    type="button"
                     onClick={() => {
                       setIsUpdating(false);
                       setTitle(post.title);
@@ -137,7 +125,6 @@ const PostPage = () => {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit">Update</Button>
                 </FieldSet>
               </form>
             )}
@@ -145,10 +132,7 @@ const PostPage = () => {
           {/* Create Comment Section */}
           {user && (
             <section>
-              <CreateCommentComponent
-                postId={Number(post.id)}
-                onCommentAdded={loadPost}
-              />
+              <CreateCommentComponent postId={Number(post.id)} />
             </section>
           )}
           {/* Comments Section */}
@@ -157,11 +141,7 @@ const PostPage = () => {
               {post.comments.length > 0 ? (
                 post.comments.map((comment) => (
                   <li key={comment.id}>
-                    <CommentItem
-                      comment={comment}
-                      postId={Number(post.id)}
-                      onCommentAdded={loadPost}
-                    />
+                    <CommentItem comment={comment} postId={Number(post.id)} />
                   </li>
                 ))
               ) : (
@@ -171,6 +151,8 @@ const PostPage = () => {
           </section>
         </section>
       )}
+      {isLoading && <SkeletonCard />}
+      {error && <ErrorComponent content="Fetching Post" />}
     </main>
   );
 };
