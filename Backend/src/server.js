@@ -74,6 +74,7 @@ const server = app.listen(PORT, () => {
 app.put("/test-profile", (req, res) => {
   res.json({ message: "PUT route is alive!" });
 });
+
 app.get("/", (req, res) => {
   res.send("VERSION 3.0 - TESTING UPLOAD ROUTE");
 });

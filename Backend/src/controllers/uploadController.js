@@ -1,7 +1,6 @@
 import cloudinary from "../lib/cloudinary.js";
 
 const getSignature = (req, res) => {
-  console.log("Hit sign-upload route!");
   const { paramsToSign } = req.body; // timestamp, folder: "posts" ...
 
   try {

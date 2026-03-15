@@ -80,8 +80,6 @@ const login = async (req, res) => {
       where: { email: email },
     });
 
-    console.log("DEBUG USER FROM DB:", existingUser);
-
     // If user with this email doesn't exist or password is incorrect
     if (
       !existingUser ||
@@ -194,6 +192,7 @@ const updateProfilePicture = async (req, res) => {
     });
     res.json(updatedUser);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Update failed" });
   }
 };
