@@ -85,7 +85,7 @@ const PostPage = () => {
                 Update your post
               </Button>
             )}
-            {/* Update PostForm */}
+            {/* Update Post Form */}
             {isUpdating && (
               <form onSubmit={handlePostUpdate} className="mt-20">
                 <FieldSet>

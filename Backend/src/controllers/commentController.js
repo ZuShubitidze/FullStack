@@ -1,3 +1,4 @@
+import { io } from "../server.js";
 import { prisma } from "../lib/prisma.js";
 
 // Create Comment
@@ -24,6 +25,21 @@ const createComment = async (req, res) => {
         author: { select: { name: true } },
       },
     });
+
+    // Indentify Post Owner
+    const postOwnerId = newComment.post.authorId;
+    console.log(postOwnerId, newComment.post);
+
+    // Notify post owner unless they are owner of the post
+    if (postOwnerId !== authorId) {
+      io.to(postOwnerId).emit("new_notification", {
+        type: "COMMENT",
+        message: `New comment on your post: "${newComment.post.title}"`,
+        from: authorId,
+        postId: postId,
+      });
+    }
+
     res.status(201).json({ status: "success", data: newComment });
   } catch (error) {
     console.log("Error occured while creating comment:", error);

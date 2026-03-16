@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const ProfilePage = () => {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
@@ -38,8 +38,12 @@ const ProfilePage = () => {
       const imageUrl = await uploadToCloudinary(image, "users");
 
       // Save URL to Backend / DB
-      await updateProfile({ userId: user.id.toString(), imageUrl });
-
+      const updatedUser = await updateProfile({
+        userId: user.id.toString(),
+        imageUrl,
+      });
+      // Update Current User
+      setUser(updatedUser);
       // Reset local states
       setIsUploadingImage(false);
       setImage(null);
@@ -47,9 +51,17 @@ const ProfilePage = () => {
 
     toast.promise(updateLogic(), {
       loading: "Updating profile picture...",
-      success: "Lookin' good!",
+      success: "Updated Successfully!",
       error: "Failed to save picture",
     });
+  };
+
+  // Cancel Image Update
+  const handleCancel = () => {
+    if (preview) URL.revokeObjectURL(preview); // Clean up memory
+    setPreview(null);
+    setImage(null);
+    setIsUploadingImage(false);
   };
 
   return (
@@ -62,23 +74,31 @@ const ProfilePage = () => {
           <h2>Email: {user.email}</h2>
         </section>
       )}
-
-      {user?.Image ? (
-        <img src={user.Image} alt="Profile Picture" />
-      ) : (
-        <Button onClick={() => setIsUploadingImage(true)}>
-          Upload Profile Picture
-        </Button>
+      {/* Image Section */}
+      {user?.Image && (
+        <section>
+          <img src={user.Image} alt="Profile Picture" className="w-60" />
+          <Button
+            onClick={() => setIsUploadingImage(true)}
+            disabled={isUploadingImage}
+          >
+            {user.Image ? "Update" : "Upload"} Profile Picture
+          </Button>
+        </section>
       )}
 
       {isUploadingImage && (
         <form onSubmit={handleSubmit}>
           <Input type="file" accept="image/*" onChange={handleImageChange} />
           {preview && (
-            <img src={preview} className="mt-2 h-40 rounded object-cover" />
+            <img
+              src={preview}
+              alt="Preview"
+              className="mt-2 h-40 rounded object-cover"
+            />
           )}
           <Button type="submit">Submit</Button>
-          <Button onClick={() => setIsUploadingImage(false)}>Cancel</Button>
+          <Button onClick={handleCancel}>Cancel</Button>
         </form>
       )}
     </main>

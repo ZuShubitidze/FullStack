@@ -7,8 +7,43 @@ import postRoutes from "./routes/postRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import cors from "cors";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 const app = express();
+const httpServer = createServer(app); // Wrap Express app
+
+// Configure Socket.io with CORS
+const io = new Server(httpServer, {
+  cors: {
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+  transports: ["websocket", "polling"],
+});
+
+// Basic connection test
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
+// Have Users join rooms
+io.on("connection", (socket) => {
+  // Listen for a 'join' event from the frontend
+  socket.on("join_user_room", (userId) => {
+    socket.join(userId); // The socket now belongs to a room named after the userId
+    console.log(`User ${userId} joined their private room: ${socket.id}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+});
+
 // Allowed Domains
 const allowedOrigins = [
   "http://localhost:5173", // Local Vite/React dev
@@ -67,7 +102,7 @@ app.use("/posts", postRoutes);
 app.use("/posts/:postId/comments", commentRoutes);
 
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => {
+const server = httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
@@ -78,3 +113,5 @@ app.put("/test-profile", (req, res) => {
 app.get("/", (req, res) => {
   res.send("VERSION 3.0 - TESTING UPLOAD ROUTE");
 });
+
+export { io };

@@ -37,7 +37,13 @@ const register = async (req, res) => {
     // Create User
     const newUser = await prisma.user.create({
       data: { name, email, password: hashedPassword },
-      select: { id: true, name: true, email: true, createdAt: true }, // Skip Password automatically
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        Image: true,
+      }, // Skip Password automatically
     });
 
     // Generate JWT Token
@@ -52,6 +58,7 @@ const register = async (req, res) => {
           name: newUser.name,
           email: newUser.email,
           createdAt: newUser.createdAt,
+          Image: newUser.Image,
         },
         accessToken: token,
       },
@@ -102,6 +109,7 @@ const login = async (req, res) => {
           id: existingUser.id,
           email: existingUser.email,
           name: existingUser.name,
+          Image: existingUser.Image,
         },
         accessToken: token,
       },
@@ -114,6 +122,7 @@ const login = async (req, res) => {
 
 // Logout
 const logout = async (req, res) => {
+  const isProd = process.env.NODE_ENV === "production";
   // Remove cookie
   res.cookie("refreshToken", "", {
     httpOnly: true,
@@ -139,6 +148,7 @@ const getMe = async (req, res) => {
         email: true,
         name: true,
         createdAt: true,
+        Image: true,
       },
     });
     // Error
@@ -185,11 +195,21 @@ const refresh = async (req, res) => {
 
 const updateProfilePicture = async (req, res) => {
   const { userId, imageUrl } = req.body;
+  console.log(userId);
   try {
     const updatedUser = await prisma.user.update({
       where: { id: Number(userId) },
       data: { Image: imageUrl }, // Match capital 'I'
+      select: {
+        // Keep this consistent with getMe select
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+        Image: true,
+      },
     });
+    // Return Updated Object
     res.json(updatedUser);
   } catch (error) {
     console.log(error);

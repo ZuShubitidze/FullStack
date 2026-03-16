@@ -1,8 +1,25 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { useSocket } from "@/context/SocketContext";
+import { useEffect } from "react";
 import { Outlet } from "react-router";
+import { toast } from "sonner";
 
 const Root = () => {
+  // Socket
+  const socket = useSocket();
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("new_notification", (data) => {
+      toast.info(data.message);
+    });
+
+    return () => {
+      socket.off("new_notification");
+    };
+  }, [socket]);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />

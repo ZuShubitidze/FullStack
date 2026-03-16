@@ -21,7 +21,7 @@ export const useCreateComment = (postId: number) => {
 
       return data;
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       // Invalidate the specific post and the list
       queryClient.invalidateQueries({
         queryKey: ["post", variables.postId.toString()],
