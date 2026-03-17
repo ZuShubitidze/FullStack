@@ -54,5 +54,4 @@ model Comment {
   parent    Comment?  @relation("CommentToReply", fields: [parentId], references: [id])
   parentId  Int?
   replies   Comment[] @relation("CommentToReply")
-
 }

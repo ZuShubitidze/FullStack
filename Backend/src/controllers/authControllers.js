@@ -128,6 +128,7 @@ const logout = async (req, res) => {
     httpOnly: true,
     secure: isProd, // true on Render, false on Localhost
     sameSite: isProd ? "none" : "lax", // "none" for Vercel -> Render
+    expires: new Date(0), // Kill instantly
     path: "/auth/refresh", // Only sent to the refresh endpoint for security
   });
 
