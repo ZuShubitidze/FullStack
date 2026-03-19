@@ -74,7 +74,16 @@ const PostPage = () => {
               <div className="flex flex-col justify-around gap-4">
                 <h1 className="text-3xl font-bold">{post.title}</h1>
                 <p>{post.content}</p>
-                <span>Author: {post.author.name}</span>
+                <div className="flex flex-row items-center gap-2">
+                  <span>Author: {post.author.name}</span>
+                  {post.author.Image && (
+                    <img
+                      src={post.author.Image}
+                      alt="Author Profile Picture"
+                      className="w-10 rounded-4xl"
+                    />
+                  )}
+                </div>
               </div>
             </div>
             {/* Delete */}

@@ -45,6 +45,7 @@ const fetchPosts = async (req, res) => {
             id: true,
             name: true,
             email: true,
+            Image: true,
           },
         },
       },
@@ -90,7 +91,7 @@ const getInfinitePosts = async (req, res) => {
         : {}),
       where,
       orderBy: { createdAt: "desc" },
-      include: { author: { select: { name: true } } }, // Get Author Name with Post
+      include: { author: { select: { name: true, Image: true } } }, // Get Author Name with Post
     });
 
     const nextCursor =
@@ -158,6 +159,7 @@ const fetchPost = async (req, res) => {
             id: true,
             name: true,
             email: true,
+            Image: true,
           },
         },
         comments: {
