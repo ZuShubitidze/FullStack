@@ -221,7 +221,7 @@ const deletePost = async (req, res) => {
     res.status(200).json({ message: `Deteled post ${post}` });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
-    console.log("Failed to delete post ");
+    console.log("Failed to delete post", error);
   }
 };
 

@@ -65,14 +65,16 @@ let token: string | null = null;
 
 // Function to update the token from your AuthContext
 export const setTokenInApi = (newToken: string | null) => {
-  if (!newToken || newToken === "undefined" || newToken === "null") {
-    delete api.defaults.headers.common["Authorization"];
-  }
   token = newToken;
-  api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  if (!newToken) {
+    delete api.defaults.headers.common["Authorization"];
+  } else {
+    api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
+  }
 };
 
 api.interceptors.request.use((config) => {
+  // Always use the latest token variable
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
