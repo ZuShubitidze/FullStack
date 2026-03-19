@@ -13,7 +13,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const newSocket = io(import.meta.env.VITE_API_URL, {
       withCredentials: true,
       autoConnect: true,
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
+    });
+
+    newSocket.on("connect", () => {
+      console.log("✅ Socket connected to server! ID:", newSocket.id);
+    });
+
+    newSocket.on("connect_error", (err) => {
+      console.error("❌ Socket connection error:", err.message);
     });
 
     setSocket(newSocket);

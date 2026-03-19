@@ -5,6 +5,7 @@ import { AuthProvider } from "./context/Authcontext";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { SocketProvider } from "./context/SocketContext";
 
 function App() {
   console.log("Backend URL is:", import.meta.env.VITE_API_URL);
@@ -13,10 +14,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          <Toaster position="bottom-right" />
-          <RouterProvider router={router} />,
-        </ThemeProvider>
+        <SocketProvider>
+          <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <Toaster position="bottom-right" />
+            <RouterProvider router={router} />
+          </ThemeProvider>
+        </SocketProvider>
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

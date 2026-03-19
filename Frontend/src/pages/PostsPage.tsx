@@ -51,6 +51,7 @@ const PostsPage = () => {
 
   return (
     <main>
+      <h1 className="text-3xl text-center my-4">Posts</h1>
       <ol className="flex flex-col gap-10">
         <Input
           type="text"
@@ -59,8 +60,7 @@ const PostsPage = () => {
           onChange={(e) => setInputValue(e.target.value)}
         />
         {allPosts.length > 0 ? (
-          <section className="flex flex-col gap-16">
-            <h1 className="text-3xl text-center my-4">Posts</h1>
+          <section className="flex flex-col gap-10 md:gap-16">
             {allPosts.map((post) => (
               <PostCard post={post} key={post.id} />
             ))}

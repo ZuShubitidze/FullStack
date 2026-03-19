@@ -6,6 +6,7 @@ import authRoutes from "./routes/authRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -25,22 +26,16 @@ const io = new Server(httpServer, {
 
 // Basic connection test
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+  console.log("✅ User connected:", socket.id);
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-  });
-});
-// Have Users join rooms
-io.on("connection", (socket) => {
-  // Listen for a 'join' event from the frontend
+  // Listen for the join event
   socket.on("join_user_room", (userId) => {
-    socket.join(userId); // The socket now belongs to a room named after the userId
-    console.log(`User ${userId} joined their private room: ${socket.id}`);
+    socket.join(userId.toString());
+    console.log(`👤 User ${userId} joined room: ${socket.id}`);
   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
+  socket.on("disconnect", (reason) => {
+    console.log("❌ User disconnected:", socket.id, "Reason:", reason);
   });
 });
 
@@ -99,10 +94,11 @@ app.post("/test-upload", (req, res) => {
 app.use("/upload", uploadRoutes);
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
+app.use("/notifications", notificationRoutes);
 app.use("/posts/:postId/comments", commentRoutes);
 
 const PORT = process.env.PORT || 3000;
-const server = httpServer.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 

@@ -1,30 +1,41 @@
 import api, { setTokenInApi } from "@/api";
 import { useAuth } from "@/context/Authcontext";
 import { useNavigate } from "react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+interface Login {
+  email: string;
+  password: string;
+}
 
 export const useLogin = () => {
-  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { setUser, setAccessToken } = useAuth();
+  const navigate = useNavigate();
 
-  const login = async (email: string, password: string) => {
-    try {
-      const res = await api.post("/auth/login", { email, password });
+  return useMutation({
+    mutationFn: async ({ email, password }: Login) => {
+      const { data } = await api.post("/auth/login", { email, password });
+      return data;
+    },
+    onSuccess: (data) => {
+      // Update global auth state
+      setUser(data.data.user);
+      console.log("Token being set - ", data.data.accessToken);
+      setAccessToken(data.data.accessToken);
+      setTokenInApi(data.data.accessToken);
 
-      if (res.data) {
-        // Update global state
-        const userData = res.data.data.user;
-        const token = res.data.data.accessToken;
-        setUser(userData);
-        console.log("Token being set:", token, "Token");
-        setAccessToken(token);
-        setTokenInApi(token);
+      // Update the React Query cache for the 'me' query
+      queryClient.setQueryData(["user"], data.data.user);
+      console.log(data);
 
-        navigate("/");
-      }
-    } catch (err: any) {
-      console.error("Login failed", err);
-    }
-  };
+      toast.success(data.message);
 
-  return { login };
+      navigate("/posts");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Login failed");
+    },
+  });
 };

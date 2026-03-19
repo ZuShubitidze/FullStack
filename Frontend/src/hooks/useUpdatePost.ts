@@ -33,7 +33,7 @@ export const useUpdatePost = () => {
     },
 
     // 3. ALWAYS: Refetch after success or error to stay in sync with DB
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       // Invalidate the specific post and the list
       queryClient.invalidateQueries({
         queryKey: ["post", variables.postId.toString()],

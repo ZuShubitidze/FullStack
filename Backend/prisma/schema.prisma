@@ -7,15 +7,16 @@ datasource db {
 }
 
 model User { 
-  id        Int       @id @default(autoincrement()) 
-  email     String    @unique
-  password  String 
-  name      String? 
-  createdAt DateTime  @default(now())
-  Image     String?
-  posts     Post[]
-  comments  Comment[]
-  refreshToken RefreshToken[]
+  id            Int             @id @default(autoincrement()) 
+  email         String          @unique
+  password      String       
+  name          String?       
+  createdAt     DateTime        @default(now())
+  Image         String?
+  posts         Post[]
+  comments      Comment[]
+  refreshToken  RefreshToken[]
+  notifications Notification[]
 } 
 
 model RefreshToken {
@@ -54,4 +55,15 @@ model Comment {
   parent    Comment?  @relation("CommentToReply", fields: [parentId], references: [id])
   parentId  Int?
   replies   Comment[] @relation("CommentToReply")
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  userId      Int      // The recipient
+  user        User     @relation(fields: [userId], references: [id])
+  type        String   // "COMMENT", "REPLY", etc.
+  message     String
+  postId      Int
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
 }

@@ -66,8 +66,8 @@ const ProfilePage = () => {
 
   return (
     <main className="flex flex-col gap-10 p-6 rounded-2xl dark:bg-zinc-800 bg-blue-300">
-      <h1 className="text-center">Your Profile</h1>
-
+      <h1 className="text-center text-3xl">Your Profile</h1>
+      {/* User Data */}
       {user && user.name && user.email && (
         <section>
           <h2>Name: {user.name}</h2>
@@ -76,8 +76,12 @@ const ProfilePage = () => {
       )}
       {/* Image Section */}
       {user?.Image && (
-        <section>
-          <img src={user.Image} alt="Profile Picture" className="w-60" />
+        <section className="flex flex-col gap-4">
+          <img
+            src={user.Image}
+            alt="Profile Picture"
+            className="w-60 md:w-100 self-center"
+          />
           <Button
             onClick={() => setIsUploadingImage(true)}
             disabled={isUploadingImage}
@@ -86,9 +90,9 @@ const ProfilePage = () => {
           </Button>
         </section>
       )}
-
+      {/* Upload Image */}
       {isUploadingImage && (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className=" flex flex-col gap-2">
           <Input type="file" accept="image/*" onChange={handleImageChange} />
           {preview && (
             <img
@@ -97,7 +101,9 @@ const ProfilePage = () => {
               className="mt-2 h-40 rounded object-cover"
             />
           )}
-          <Button type="submit">Submit</Button>
+          <Button type="submit">
+            {user?.Image ? "Update" : "Upload"} Profile Picture
+          </Button>
           <Button onClick={handleCancel}>Cancel</Button>
         </form>
       )}

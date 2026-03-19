@@ -20,6 +20,7 @@ const CreateCommentComponent = ({ postId }: { postId: number }) => {
       {
         onSuccess: () => {
           setIsCommenting(false);
+          setComment("");
         },
       },
     );

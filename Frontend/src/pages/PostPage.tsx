@@ -12,7 +12,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/Authcontext";
 import CommentItem from "@/components/CommentItem";
 import CreateCommentComponent from "@/components/CreateCommentComponent";
-import { toast } from "sonner";
 import { useDeletePost } from "@/hooks/useDeletePost";
 import { usePost } from "@/hooks/usePost";
 import { SkeletonCard } from "@/components/SkeletonCard";
@@ -40,7 +39,6 @@ const PostPage = () => {
       {
         onSuccess: () => {
           setIsUpdating(false); // Close the form only if it actually worked!
-          toast.success("Changes saved.");
           console.log("Updated Post:", title, content);
         },
       },
@@ -62,11 +60,9 @@ const PostPage = () => {
         <section className="flex flex-col gap-10 dark:bg-zinc-800 bg-blue-300 p-4">
           {/* Post Section */}
           <section className="flex flex-col gap-4">
-            <h1>
-              Title: <strong>{post.title}</strong>
-            </h1>
+            <h1 className="text-3xl font-bold">{post.title}</h1>
             <p>{post.content}</p>
-            <p>Author: {post.author.name}</p>
+            <span>Author: {post.author.name}</span>
             {post.Image && <img src={post.Image} alt={post.title} />}
             {isOwner && (
               <Button

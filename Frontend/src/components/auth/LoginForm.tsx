@@ -8,23 +8,17 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useLogin } from "@/hooks/useLogin";
-import { toast } from "sonner";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useLogin();
+  const { mutate: login, isPending } = useLogin();
 
   // Handle login with useLogin hook
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
-      await login(email, password);
-      toast.success("Welcome back!");
-    } catch (err) {
-      toast.error("Invalid email or password");
-    }
+    login({ email, password });
   };
 
   return (
@@ -51,11 +45,14 @@ const LoginForm = () => {
           <Input
             id="password"
             placeholder="Enter your password"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </Field>
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Logging in" : "Login"}
+        </Button>
       </FieldSet>
     </form>
   );

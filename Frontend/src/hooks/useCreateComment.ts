@@ -28,7 +28,7 @@ export const useCreateComment = (postId: number) => {
       });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
 
-      toast.success("Post successfully updated");
+      toast.success("Comment successfully created");
       navigate(`/posts/${variables.postId}`);
     },
   });

@@ -42,12 +42,21 @@ const createComment = async (req, res) => {
 
     // Indentify Post Owner
     const postOwnerId = newComment.post.authorId;
-    console.log(postOwnerId, newComment.post, newComment.post.authorId);
     const parentAuthorId = newComment.parent?.author.id;
     const currentUserId = Number(authorId);
 
     // Notify post owner unless they are owner of the post
     if (postOwnerId !== currentUserId) {
+      // Save to Post owner's Database for history
+      await prisma.notification.create({
+        data: {
+          userId: postOwnerId,
+          type: "COMMENT",
+          message: `${newComment.author.name} commented on: ${newComment.post.title}`,
+          postId: postId,
+        },
+      });
+      // Emit via Socket for real-time
       io.to(postOwnerId.toString()).emit("new_notification", {
         type: "COMMENT",
         message: `New comment on your post: "${newComment.post.title}"`,
@@ -61,6 +70,16 @@ const createComment = async (req, res) => {
       parentAuthorId !== currentUserId &&
       parentAuthorId !== postOwnerId
     ) {
+      // Save to User's Database for history
+      await prisma.notification.create({
+        data: {
+          userId: postOwnerId,
+          type: "REPLY",
+          message: `${newComment.author.name} commented on: ${newComment.post.title}`,
+          postId: postId,
+        },
+      });
+      // Emit via Socket for real-time
       io.to(parentAuthorId.toString()).emit("new_notification", {
         type: "REPLY",
         message: `${newComment.author.name} replied to your comment!`,

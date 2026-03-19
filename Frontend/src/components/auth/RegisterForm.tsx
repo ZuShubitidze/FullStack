@@ -8,24 +8,17 @@ import {
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { useRegister } from "../../hooks/useRegister";
-import { toast } from "sonner";
 
 const RegisterForm = () => {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  const { register } = useRegister();
-
   // Handle registration
+  const { mutate: register, isPending } = useRegister();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await register(name, email, password);
-      toast.success(`Welcome ${name}!`);
-    } catch (error) {
-      toast.error("Register error, please try again");
-    }
+    register({ name, email, password });
   };
 
   return (
@@ -61,12 +54,13 @@ const RegisterForm = () => {
           <Input
             id="password"
             placeholder="Enter your password"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </Field>
-        <Button type="submit" onClick={() => console.log(email, password)}>
-          Register
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Registering" : "Register"}
         </Button>
       </FieldSet>
     </form>
