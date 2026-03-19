@@ -60,16 +60,30 @@ const PostPage = () => {
         <section className="flex flex-col gap-10 dark:bg-zinc-800 bg-blue-300 p-4">
           {/* Post Section */}
           <section className="flex flex-col gap-4">
-            <h1 className="text-3xl font-bold">{post.title}</h1>
-            <p>{post.content}</p>
-            <span>Author: {post.author.name}</span>
-            {post.Image && <img src={post.Image} alt={post.title} />}
+            {/* Post Data */}
+            <div className="flex flex-col md:flex-row gap-4 md:justify-around">
+              <section>
+                {post.Image && (
+                  <img
+                    src={post.Image}
+                    alt={post.title}
+                    className="w-60 md:w-100 m-auto"
+                  />
+                )}
+              </section>
+              <div className="flex flex-col justify-around gap-4">
+                <h1 className="text-3xl font-bold">{post.title}</h1>
+                <p>{post.content}</p>
+                <span>Author: {post.author.name}</span>
+              </div>
+            </div>
+            {/* Delete */}
             {isOwner && (
               <Button
                 onClick={() => deletePost(post.id)}
-                className="text-red-500"
+                className="text-red-500 w-36"
               >
-                Delete
+                Delete Post
               </Button>
             )}
           </section>
@@ -77,8 +91,12 @@ const PostPage = () => {
           <section>
             {/* If userID and post authorID are same, allow user to update */}
             {user && user.id === post.authorId && (
-              <Button onClick={() => setIsUpdating(true)} disabled={isUpdating}>
-                Update your post
+              <Button
+                onClick={() => setIsUpdating(true)}
+                disabled={isUpdating}
+                className="w-36"
+              >
+                Update post
               </Button>
             )}
             {/* Update Post Form */}

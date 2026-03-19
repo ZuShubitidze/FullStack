@@ -35,7 +35,7 @@ const CreateCommentComponent = ({ postId }: { postId: number }) => {
           <Button
             onClick={() => setIsCommenting(true)}
             disabled={isCommenting}
-            className="mb-2"
+            className="mb-2 w-36"
           >
             Comment
           </Button>
