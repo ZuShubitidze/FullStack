@@ -11,6 +11,9 @@ import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import type { Request, Response, NextFunction } from "express";
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
+import { errorHandler } from "./middleware/errorMiddleware.js";
 
 const app = express();
 const httpServer = createServer(app); // Wrap Express app
@@ -80,6 +83,27 @@ async function main() {
 }
 main();
 
+app.use(helmet());
+
+// Rate Limiter
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  // Custom JSON response
+  handler: (req, res, next, options) => {
+    res.status(options.statusCode).json({
+      status: "Error",
+      message: options.message,
+      error: "TOO_MANY_REQUESTS",
+    });
+  },
+  message: "Too many requests from this IP, please try again after 15 minutes",
+});
+app.set("trust proxy", 1); // Necessary for Render
+app.use(limiter);
+
 app.use(cookieParser());
 
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -97,6 +121,8 @@ app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
 app.use("/notifications", notificationRoutes);
 app.use("/posts/:postId/comments", commentRoutes);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {

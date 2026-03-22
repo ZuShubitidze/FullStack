@@ -11,16 +11,12 @@ const getSignature = (req: Request, res: Response) => {
     );
   }
 
-  try {
-    const signature = cloudinary.utils.api_sign_request(
-      paramsToSign,
-      cloudinaryApiSecret,
-    );
+  const signature = cloudinary.utils.api_sign_request(
+    paramsToSign,
+    cloudinaryApiSecret,
+  );
 
-    res.status(200).json({ signature });
-  } catch (error) {
-    res.status(500).json({ message: "Signature generation failed" });
-  }
+  res.status(200).json({ signature });
 };
 
 export { getSignature };

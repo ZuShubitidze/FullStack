@@ -4,124 +4,107 @@ import type { Request, Response } from "express";
 
 // Create Comment
 const createComment = async (req: Request, res: Response) => {
-  try {
-    const { comment, postId, parentId } = req.body;
+  const { comment, postId, parentId } = req.body;
 
-    const authorId = req.user.id;
+  const authorId = req.user.id;
 
-    // Not enough data from frontend
-    if (!comment || !authorId || !postId) {
-      return res.status(400).json({
-        error: "Mising required data",
-      });
-    }
-
-    // Success
-    const newComment = await prisma.comment.create({
-      data: {
-        comment,
-        authorId: Number(authorId),
-        postId: Number(postId),
-        parentId: parentId && Number(parentId) !== 0 ? Number(parentId) : null,
+  // Success
+  const newComment = await prisma.comment.create({
+    data: {
+      comment,
+      authorId: Number(authorId),
+      postId: Number(postId),
+      parentId: parentId && Number(parentId) !== 0 ? Number(parentId) : null,
+    },
+    // Take name
+    include: {
+      author: { select: { name: true } },
+      // Need Post and Parent for Socket
+      post: {
+        select: {
+          authorId: true,
+          title: true,
+        },
       },
-      // Take name
-      include: {
-        author: { select: { name: true } },
-        // Need Post and Parent for Socket
-        post: {
-          select: {
-            authorId: true,
-            title: true,
-          },
+      parent: {
+        include: {
+          author: { select: { id: true } },
         },
-        parent: {
-          include: {
-            author: { select: { id: true } },
-          },
-        },
+      },
+    },
+  });
+
+  // Indentify Post Owner
+  const postOwnerId = newComment.post.authorId;
+  const parentAuthorId = newComment.parent?.author.id;
+  const currentUserId = Number(authorId);
+
+  // Notify post owner unless they are owner of the post
+  if (postOwnerId !== currentUserId) {
+    // Save to Post owner's Database for history
+    await prisma.notification.create({
+      data: {
+        userId: postOwnerId,
+        type: "COMMENT",
+        message: `${newComment.author.name} commented on: ${newComment.post.title}`,
+        postId: postId,
       },
     });
-
-    // Indentify Post Owner
-    const postOwnerId = newComment.post.authorId;
-    const parentAuthorId = newComment.parent?.author.id;
-    const currentUserId = Number(authorId);
-
-    // Notify post owner unless they are owner of the post
-    if (postOwnerId !== currentUserId) {
-      // Save to Post owner's Database for history
-      await prisma.notification.create({
-        data: {
-          userId: postOwnerId,
-          type: "COMMENT",
-          message: `${newComment.author.name} commented on: ${newComment.post.title}`,
-          postId: postId,
-        },
-      });
-      // Emit via Socket for real-time
-      io.to(postOwnerId.toString()).emit("new_notification", {
-        type: "COMMENT",
-        message: `New comment on your post: "${newComment.post.title}"`,
-        from: currentUserId,
-        postId: postId,
-      });
-    }
-    // Notify parent comment auhor for replies
-    if (
-      parentAuthorId &&
-      parentAuthorId !== currentUserId &&
-      parentAuthorId !== postOwnerId
-    ) {
-      // Save to User's Database for history
-      await prisma.notification.create({
-        data: {
-          userId: postOwnerId,
-          type: "REPLY",
-          message: `${newComment.author.name} commented on: ${newComment.post.title}`,
-          postId: postId,
-        },
-      });
-      // Emit via Socket for real-time
-      io.to(parentAuthorId.toString()).emit("new_notification", {
-        type: "REPLY",
-        message: `${newComment.author.name} replied to your comment!`,
-        from: currentUserId,
-        postId: postId,
-      });
-    }
-
-    res.status(201).json({ status: "success", data: newComment });
-  } catch (error) {
-    console.log("Error occured while creating comment:", error);
-    res.status(404).json({ error: "Error creating comment" });
+    // Emit via Socket for real-time
+    io.to(postOwnerId.toString()).emit("new_notification", {
+      type: "COMMENT",
+      message: `New comment on your post: "${newComment.post.title}"`,
+      from: currentUserId,
+      postId: postId,
+    });
   }
+  // Notify parent comment auhor for replies
+  if (
+    parentAuthorId &&
+    parentAuthorId !== currentUserId &&
+    parentAuthorId !== postOwnerId
+  ) {
+    // Save to User's Database for history
+    await prisma.notification.create({
+      data: {
+        userId: postOwnerId,
+        type: "REPLY",
+        message: `${newComment.author.name} commented on: ${newComment.post.title}`,
+        postId: postId,
+      },
+    });
+    // Emit via Socket for real-time
+    io.to(parentAuthorId.toString()).emit("new_notification", {
+      type: "REPLY",
+      message: `${newComment.author.name} replied to your comment!`,
+      from: currentUserId,
+      postId: postId,
+    });
+  }
+
+  res.status(201).json({ status: "success", data: newComment });
 };
 
 // Update Comment
 const updateComment = async (req: Request, res: Response) => {
-  try {
-    const { comment, id } = req.body;
-    const authorId = req.user.id;
+  const { comment, id } = req.body;
+  const authorId = req.user.id;
 
-    const updatedComment = await prisma.comment.update({
-      where: {
-        id: Number(id),
-        authorId: authorId,
-      },
-      // Data we are changing
-      data: {
-        comment,
-      },
-    });
+  const updatedComment = await prisma.comment.update({
+    where: {
+      id: Number(id),
+      authorId: authorId,
+    },
+    // Data we are changing
+    data: {
+      comment,
+    },
+  });
 
-    res.status(200).json({
-      status: "success",
-      data: { comment: updatedComment },
-    });
-  } catch (error) {
-    console.log("Error updating comment", error);
-    res.status(404).json({ error: "Failed to update comment" });
-  }
+  res.status(200).json({
+    status: "success",
+    data: { comment: updatedComment },
+  });
 };
 
 export { createComment, updateComment };

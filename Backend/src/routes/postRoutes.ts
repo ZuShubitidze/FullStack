@@ -20,6 +20,7 @@ import {
   getInfinitePostsSchema,
   updatePostSchema,
 } from "src/validators/postValidators.js";
+import { asyncHandler } from "src/middleware/asyncHandler.js";
 
 const router = express.Router();
 
@@ -29,9 +30,24 @@ router.get(
   validateQuery(getInfinitePostsSchema),
   getInfinitePosts,
 );
-router.post("/createPost", validate(createPostSchema), createPost);
-router.delete("/:id", validateParams(deletePostSchema), protect, deletePost);
-router.get("/:id", validateParams(fetchPostSchema), fetchPost);
-router.put("/:id", validate(updatePostSchema), updatePost);
+router.post(
+  "/createPost",
+  validate(createPostSchema),
+  protect,
+  asyncHandler(createPost),
+);
+router.delete(
+  "/:id",
+  validateParams(deletePostSchema),
+  protect,
+  asyncHandler(deletePost),
+);
+router.get("/:id", validateParams(fetchPostSchema), asyncHandler(fetchPost));
+router.put(
+  "/:id",
+  validate(updatePostSchema),
+  protect,
+  asyncHandler(updatePost),
+);
 
 export default router;

@@ -21,7 +21,7 @@ export const updatePostSchema = z.object({
     .min(20, "Content must be at least 20 characters")
     .optional(),
   published: z.boolean().default(false),
-  imageUrl: z.string().optional(),
+  imageUrl: z.string().url().startsWith("https://").optional().nullable(),
 });
 
 export const fetchPostSchema = z.object({

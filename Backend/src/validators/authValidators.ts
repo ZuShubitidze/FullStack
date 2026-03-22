@@ -23,7 +23,7 @@ export const loginSchema = z.object({
 
 export const UpdateProfileSchema = z.object({
   userId: z.string().min(1),
-  imageUrl: z.string().trim(),
+  imageUrl: z.string().url().startsWith("https://").optional().nullable(),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

@@ -7,69 +7,49 @@ import type { Request, Response } from "express";
 
 // Create
 const createPost = async (req: Request, res: Response) => {
-  try {
-    const { title, content, imageUrl }: createPostInput = req.body;
-    const authorId = req.user.id;
+  const { title, content, imageUrl }: createPostInput = req.body;
+  const authorId = req.user.id;
 
-    // Basic Validation
-    if (!title || !content || !authorId) {
-      return res
-        .status(400)
-        .json({ error: "Please provide title, content, and authorId" });
-    }
-
-    // Success
-    const post = await prisma.post.create({
-      data: {
-        title: title,
-        content: content,
-        // Saves time finding unique user
-        author: {
-          connect: { id: authorId },
-        },
-        Image: imageUrl ?? null,
+  // Success
+  const post = await prisma.post.create({
+    data: {
+      title: title,
+      content: content,
+      // Saves time finding unique user
+      author: {
+        connect: { id: authorId },
       },
-    });
+      Image: imageUrl ?? null,
+    },
+  });
 
-    res.status(201).json(post);
-  } catch (error: any) {
-    // Prisma throws specific error codes if 'connect' fails
-    if (error.code === "P2025") {
-      return res.status(404).json({ error: "User not found" });
-    }
-    return res.status(500).json({ error: "Internal server error" });
-  }
+  res.status(201).json(post);
 };
 
 // Fetch All Posts
 const fetchPosts = async (req: Request, res: Response) => {
-  try {
-    const posts = await prisma.post.findMany({
-      include: {
-        author: {
-          select: {
-            // Ensure we don't leak hashed password to frontend
-            id: true,
-            name: true,
-            email: true,
-            Image: true,
-          },
+  const posts = await prisma.post.findMany({
+    include: {
+      author: {
+        select: {
+          // Ensure we don't leak hashed password to frontend
+          id: true,
+          name: true,
+          email: true,
+          Image: true,
         },
       },
-      orderBy: {
-        // Newest posts first
-        createdAt: "desc",
-      },
-    });
-    res.status(200).json({
-      status: "success",
-      results: posts.length,
-      data: { posts },
-    });
-  } catch (error) {
-    console.log("Full Prisma Error:", error);
-    res.status(500).json({ error: "Failed to fetch posts" });
-  }
+    },
+    orderBy: {
+      // Newest posts first
+      createdAt: "desc",
+    },
+  });
+  res.status(200).json({
+    status: "success",
+    results: posts.length,
+    data: { posts },
+  });
 };
 
 // Infinite Posts
@@ -87,155 +67,109 @@ const getInfinitePosts = async (req: Request, res: Response) => {
     };
   }
 
-  try {
-    const posts = await prisma.post.findMany({
-      take: limit as number,
-      ...(cursor
-        ? {
-            skip: 1, // Skip the cursor / last post if it exists
-            cursor: { id: Number(cursor) },
-          }
-        : {}),
-      where,
-      orderBy: { createdAt: "desc" },
-      include: { author: { select: { name: true, Image: true } } }, // Get Author Name with Post
-    });
+  const posts = await prisma.post.findMany({
+    take: Number(limit),
+    ...(cursor
+      ? {
+          skip: 1, // Skip the cursor / last post if it exists
+          cursor: { id: Number(cursor) },
+        }
+      : {}),
+    where,
+    orderBy: { createdAt: "desc" },
+    include: { author: { select: { name: true, Image: true } } }, // Get Author Name with Post
+  });
 
-    const nextCursor =
-      posts.length === Number(limit) ? posts[posts.length - 1]?.id : null;
+  const nextCursor =
+    posts.length === Number(limit) ? posts[posts.length - 1]?.id : null;
 
-    res.json({ posts, nextCursor });
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching posts" });
-    console.log("Error", error, cursor, limit);
-  }
+  res.json({ posts, nextCursor });
 };
 
 // Update
 const updatePost = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params; // Get ID from URL
-    // const { title, content, published, imageUrl }: updatePostInput = req.body;
-    const { imageUrl, title, content, ...restOfData } = req.body;
+  const { id } = req.params; // Get ID from URL
+  // const { title, content, published, imageUrl }: updatePostInput = req.body;
+  const { imageUrl, title, content, ...restOfData } = req.body;
+  const userId = req.user.id;
 
-    const updatedPost = await prisma.post.update({
-      where: {
-        id: Number(id), // Convert URL ID to number
-      },
-      data: {
-        ...restOfData,
-        ...(imageUrl !== undefined && { Image: imageUrl }),
+  const updatedPost = await prisma.post.update({
+    where: {
+      id: Number(id), // Convert URL ID to number
+      authorId: userId,
+    },
+    data: {
+      ...restOfData,
+      ...(imageUrl !== undefined && { Image: imageUrl }),
+    },
+  });
 
-        // title,
-        // content,
-        // published,
-        // Image: imageUrl,
-      },
-    });
-
-    res.status(200).json({
-      status: "success",
-      data: { post: updatedPost },
-    });
-  } catch (error: any) {
-    console.log("--- ERROR DETECTED ---");
-    console.error("Message:", error.message);
-    console.error("Prisma Code:", error.code);
-    // Record to update not found code
-    if (error.code === "P2025") {
-      return res.status(404).json({ error: "Post not found" });
-    }
-    res.status(500).json({ error: "Failed to update post" });
-  }
+  res.status(200).json({
+    status: "success",
+    data: { post: updatedPost },
+  });
 };
 
 // Fetch Post
 const fetchPost = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    // Guard
-    if (!id || isNaN(Number(id))) {
-      return res.status(400).json({ message: "Invalid or missing Post ID" });
-    }
-
-    const post = await prisma.post.findUnique({
-      where: {
-        id: Number(id),
-      },
-      include: {
-        author: {
-          select: {
-            // Ensure we don't leak hashed password to frontend
-            id: true,
-            name: true,
-            email: true,
-            Image: true,
-          },
-        },
-        comments: {
-          where: { parentId: null }, // Only get top-level comments
-          include: {
-            // Get comment author
-            author: {
-              select: {
-                name: true,
-              },
-            },
-            // Nested replies
-            replies: {
-              include: {
-                author: { select: { name: true } },
-                replies: true,
-              },
-            },
-          },
-          orderBy: { createdAt: "desc" },
+  const post = await prisma.post.findUnique({
+    where: {
+      id: Number(id),
+    },
+    include: {
+      author: {
+        select: {
+          // Ensure we don't leak hashed password to frontend
+          id: true,
+          name: true,
+          email: true,
+          Image: true,
         },
       },
-    });
+      comments: {
+        where: { parentId: null }, // Only get top-level comments
+        include: {
+          // Get comment author
+          author: {
+            select: {
+              name: true,
+            },
+          },
+          // Nested replies
+          replies: {
+            include: {
+              author: { select: { name: true } },
+              replies: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      },
+    },
+  });
 
-    res.status(200).json({
-      status: "success",
-      data: { post },
-    });
-  } catch (error) {
-    console.log("Prisma Error:", error);
-    res.status(500).json({ error: "Failed to fetch specific post" });
-  }
+  res.status(200).json({
+    status: "success",
+    data: { post },
+  });
 };
 
 // Delete Post
 const deletePost = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user.id;
+  const { id } = req.params;
+  const userId = req.user.id;
 
-    // Guard
-    if (!id || isNaN(Number(id))) {
-      return res.status(400).json({ message: "Invalid or missing Post ID" });
-    }
+  const post = await prisma.post.findUnique({
+    where: { id: Number(id), authorId: userId },
+  });
 
-    const post = await prisma.post.findUnique({
-      where: { id: Number(id) },
-    });
+  if (!post) return res.status(404).json({ message: "Post not found" });
 
-    if (!post) return res.status(404).json({ message: "Post not found" });
-
-    // Check ownership
-    if (post.authorId !== userId) {
-      return res
-        .status(403)
-        .json({ message: "You can only delete your own posts" });
-    }
-
-    // Success
-    await prisma.post.delete({ where: { id: Number(id) } });
-    res.status(200).json({ message: `Deteled post ${post}` });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-    console.log("Failed to delete post", error);
-  }
+  // Success
+  await prisma.post.delete({ where: { id: Number(id) } });
+  res.status(200).json({ message: `Deteled post ${post}` });
 };
 
 export {
