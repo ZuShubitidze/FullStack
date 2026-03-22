@@ -5,15 +5,19 @@ import {
   logout,
   refresh,
   register,
-  updateProfilePicture,
+  updateProfile,
 } from "../controllers/authControllers.js";
 import { validate } from "../middleware/validate.js";
-import { loginSchema, registerSchema } from "../validators/authValidators.js";
+import {
+  loginSchema,
+  registerSchema,
+  UpdateProfileSchema,
+} from "../validators/authValidators.js";
 import { protect } from "../middleware/protect.js";
 
 const router = express.Router();
 
-router.put("/update-profile", updateProfilePicture);
+router.put("/update-profile", validate(UpdateProfileSchema), updateProfile);
 router.post("/register", validate(registerSchema), register);
 router.post("/login", validate(loginSchema), login);
 router.post("/logout", logout);

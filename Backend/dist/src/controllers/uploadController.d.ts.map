@@ -1,1 +1,1 @@
-{"version":3,"file":"uploadController.d.ts","sourceRoot":"","sources":["../../../src/controllers/uploadController.js"],"names":[],"mappings":"AAEA,uDAaC"}
+{"version":3,"file":"uploadController.d.ts","sourceRoot":"","sources":["../../../src/controllers/uploadController.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAEjD,QAAA,MAAM,YAAY,GAAI,KAAK,OAAO,EAAE,KAAK,QAAQ,SAoBhD,CAAC;AAEF,OAAO,EAAE,YAAY,EAAE,CAAC"}

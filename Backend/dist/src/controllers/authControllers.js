@@ -1,21 +1,12 @@
 import { prisma } from "../lib/prisma.js";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/generateToken.js";
-import { registerSchema } from "../validators/authValidators.js";
+import {} from "../validators/authValidators.js";
 import jwt from "jsonwebtoken";
 // Register
 const register = async (req, res) => {
     try {
-        // Validate request data
-        const validation = registerSchema.safeParse(req.body);
-        if (!validation.success) {
-            return res.status(400).json({
-                error: "Validation failed",
-                details: validation.error.flatten().fieldErrors, // Gives clean errors per field
-            });
-        }
-        // Access validated data
-        const { name, email, password } = validation.data;
+        const { name, email, password } = req.body;
         // Check if user already exists
         const existingUser = await prisma.user.findUnique({
             where: { email: email },
@@ -32,7 +23,13 @@ const register = async (req, res) => {
         // Create User
         const newUser = await prisma.user.create({
             data: { name, email, password: hashedPassword },
-            select: { id: true, name: true, email: true, createdAt: true }, // Skip Password automatically
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                createdAt: true,
+                Image: true,
+            }, // Skip Password automatically
         });
         // Generate JWT Token
         const token = generateToken(newUser.id, res);
@@ -45,13 +42,15 @@ const register = async (req, res) => {
                     name: newUser.name,
                     email: newUser.email,
                     createdAt: newUser.createdAt,
+                    Image: newUser.Image,
                 },
                 accessToken: token,
             },
         });
     }
     catch (error) {
-        console.error("Login Error:", error);
+        console.error("Register Error:", error);
+        console.log("Error message:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
@@ -70,7 +69,6 @@ const login = async (req, res) => {
         const existingUser = await prisma.user.findUnique({
             where: { email: email },
         });
-        console.log("DEBUG USER FROM DB:", existingUser);
         // If user with this email doesn't exist or password is incorrect
         if (!existingUser ||
             !(await bcrypt.compare(password, existingUser.password))) {
@@ -90,6 +88,7 @@ const login = async (req, res) => {
                     id: existingUser.id,
                     email: existingUser.email,
                     name: existingUser.name,
+                    Image: existingUser.Image,
                 },
                 accessToken: token,
             },
@@ -102,11 +101,13 @@ const login = async (req, res) => {
 };
 // Logout
 const logout = async (req, res) => {
+    const isProd = process.env.NODE_ENV === "production";
     // Remove cookie
     res.cookie("refreshToken", "", {
         httpOnly: true,
         secure: isProd, // true on Render, false on Localhost
         sameSite: isProd ? "none" : "lax", // "none" for Vercel -> Render
+        expires: new Date(0), // Kill instantly
         path: "/auth/refresh", // Only sent to the refresh endpoint for security
     });
     res.status(200).json({
@@ -125,6 +126,7 @@ const getMe = async (req, res) => {
                 email: true,
                 name: true,
                 createdAt: true,
+                Image: true,
             },
         });
         // Error
@@ -138,7 +140,6 @@ const getMe = async (req, res) => {
                 user: fullUser,
             },
         });
-        console.log(fullUser);
     }
     catch (error) {
         res.status(500).json({ error: "Server error" });
@@ -152,8 +153,16 @@ const refresh = async (req, res) => {
         return res.status(200).json({ loggedIn: false, accessToken: null });
     }
     try {
-        const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
-        const newAccessToken = jwt.sign({ id: decoded.id }, process.env.JWT_SECRET, {
+        const refreshSecret = process.env.REFRESH_SECRET;
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!refreshSecret) {
+            throw new Error("REFRESH_SECRET is not defined in the environment variables");
+        }
+        if (!jwtSecret) {
+            throw new Error("JWT_SECRET is not defined in the environment variables");
+        }
+        const decoded = jwt.verify(refreshToken, refreshSecret);
+        const newAccessToken = jwt.sign({ id: decoded.id }, jwtSecret, {
             expiresIn: "15m",
         });
         res.json({ accessToken: newAccessToken });
@@ -162,5 +171,29 @@ const refresh = async (req, res) => {
         res.status(403).json({ message: "Invalid refresh token" });
     }
 };
-export { register, login, logout, getMe, refresh };
+const updateProfilePicture = async (req, res) => {
+    const { userId, imageUrl } = req.body;
+    console.log(userId);
+    try {
+        const updatedUser = await prisma.user.update({
+            where: { id: Number(userId) },
+            data: { Image: imageUrl }, // Match capital 'I'
+            select: {
+                // Keep this consistent with getMe select
+                id: true,
+                email: true,
+                name: true,
+                createdAt: true,
+                Image: true,
+            },
+        });
+        // Return Updated Object
+        res.json(updatedUser);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Update failed" });
+    }
+};
+export { register, login, logout, getMe, refresh, updateProfilePicture };
 //# sourceMappingURL=authControllers.js.map

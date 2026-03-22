@@ -1,10 +1,15 @@
+import type {
+  createPostInput,
+  updatePostInput,
+} from "src/validators/postValidators.js";
 import { prisma } from "../lib/prisma.js";
 import type { Request, Response } from "express";
 
 // Create
 const createPost = async (req: Request, res: Response) => {
   try {
-    const { title, content, authorId, imageUrl } = req.body;
+    const { title, content, imageUrl }: createPostInput = req.body;
+    const authorId = req.user.id;
 
     // Basic Validation
     if (!title || !content || !authorId) {
@@ -22,7 +27,7 @@ const createPost = async (req: Request, res: Response) => {
         author: {
           connect: { id: authorId },
         },
-        Image: imageUrl,
+        Image: imageUrl ?? null,
       },
     });
 
@@ -84,7 +89,7 @@ const getInfinitePosts = async (req: Request, res: Response) => {
 
   try {
     const posts = await prisma.post.findMany({
-      take: Number(limit),
+      take: limit as number,
       ...(cursor
         ? {
             skip: 1, // Skip the cursor / last post if it exists
@@ -110,17 +115,21 @@ const getInfinitePosts = async (req: Request, res: Response) => {
 const updatePost = async (req: Request, res: Response) => {
   try {
     const { id } = req.params; // Get ID from URL
-    const { title, content, published, imageUrl } = req.body;
+    // const { title, content, published, imageUrl }: updatePostInput = req.body;
+    const { imageUrl, title, content, ...restOfData } = req.body;
 
     const updatedPost = await prisma.post.update({
       where: {
         id: Number(id), // Convert URL ID to number
       },
       data: {
-        title,
-        content,
-        published,
-        Image: imageUrl,
+        ...restOfData,
+        ...(imageUrl !== undefined && { Image: imageUrl }),
+
+        // title,
+        // content,
+        // published,
+        // Image: imageUrl,
       },
     });
 

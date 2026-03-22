@@ -25,3 +25,33 @@ export const validate =
     // req.body = result.data; // Pass the cleaned/formatted data to the next step
     // next();
   };
+
+export const validateQuery =
+  (schema: z.ZodSchema) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Validate and transform req.query
+      req.query = (await schema.parseAsync(req.query)) as any;
+      next();
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.flatten().fieldErrors });
+      }
+      next(error);
+    }
+  };
+
+export const validateParams =
+  (schema: z.ZodSchema) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Convert "123" into 123
+      req.params = (await schema.parseAsync(req.params)) as any;
+      next();
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.flatten().fieldErrors });
+      }
+      next(error);
+    }
+  };

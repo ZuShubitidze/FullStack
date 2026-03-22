@@ -1,1 +1,1 @@
-{"version":3,"file":"postRoutes.d.ts","sourceRoot":"","sources":["../../../src/routes/postRoutes.js"],"names":[],"mappings":";AAWA,0BAAgC"}
+{"version":3,"file":"postRoutes.d.ts","sourceRoot":"","sources":["../../../src/routes/postRoutes.ts"],"names":[],"mappings":"AAWA,QAAA,MAAM,MAAM,4CAAmB,CAAC;AAShC,eAAe,MAAM,CAAC"}

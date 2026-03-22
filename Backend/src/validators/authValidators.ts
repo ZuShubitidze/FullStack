@@ -8,7 +8,7 @@ export const registerSchema = z.object({
     .min(1, "Email is required")
     .email("Please provide a valid email")
     .toLowerCase(),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 export const loginSchema = z.object({
@@ -18,8 +18,17 @@ export const loginSchema = z.object({
     .min(1, "Email is required")
     .email("Please provide a valid email")
     .toLowerCase(),
-  password: z.string().min(1, "Password is required"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
+
+export const UpdateProfileSchema = z.object({
+  userId: z.string().min(1),
+  imageUrl: z.string().trim(),
+});
+
+export type RegisterInput = z.infer<typeof registerSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
+export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>;
 
 // 2. Wrap them for your middleware (which expects { body, query, params })
 // export const registerSchema = z.object({
@@ -31,7 +40,5 @@ export const loginSchema = z.object({
 // });
 
 // 3. Export Types for use in your Controllers
-export type RegisterInput = z.infer<typeof registerSchema>;
-export type LoginInput = z.infer<typeof loginSchema>;
 
 // export { registerSchema, loginSchema };

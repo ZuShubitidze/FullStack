@@ -1,3 +1,4 @@
+import type { markAsReadInput } from "src/validators/notificationsValidators.js";
 import { prisma } from "../lib/prisma.js";
 import type { Request, Response } from "express";
 
@@ -28,10 +29,10 @@ const markAllAsRead = async (req: Request, res: Response) => {
 };
 
 const markAsRead = async (req: Request, res: Response) => {
-  const { notificationId } = req.body;
+  const { notificationId }: markAsReadInput = req.body;
 
   try {
-    const result = await prisma.notification.update({
+    await prisma.notification.update({
       where: { userId: req.user.id, isRead: false, id: notificationId },
       data: { isRead: true },
     });

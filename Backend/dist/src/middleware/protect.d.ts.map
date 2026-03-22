@@ -1,1 +1,1 @@
-{"version":3,"file":"protect.d.ts","sourceRoot":"","sources":["../../../src/middleware/protect.js"],"names":[],"mappings":"AAIO,qEAkCN"}
+{"version":3,"file":"protect.d.ts","sourceRoot":"","sources":["../../../src/middleware/protect.ts"],"names":[],"mappings":"AAAA,OAAO,eAAe,CAAC;AAGvB,OAAO,KAAK,EAAE,OAAO,EAAE,QAAQ,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAQ/D,OAAO,CAAC,MAAM,CAAC;IACb,UAAU,OAAO,CAAC;QAChB,UAAU,OAAO;YACf,IAAI,EAAE;gBAAE,EAAE,EAAE,MAAM,CAAA;aAAE,CAAC;SACtB;KACF;CACF;AAED,eAAO,MAAM,OAAO,GAClB,KAAK,OAAO,EACZ,KAAK,QAAQ,EACb,MAAM,YAAY,4DAyCnB,CAAC"}

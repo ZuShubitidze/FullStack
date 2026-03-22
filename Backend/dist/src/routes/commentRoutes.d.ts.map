@@ -1,1 +1,1 @@
-{"version":3,"file":"commentRoutes.d.ts","sourceRoot":"","sources":["../../../src/routes/commentRoutes.js"],"names":[],"mappings":";AAMA,0BAAgC"}
+{"version":3,"file":"commentRoutes.d.ts","sourceRoot":"","sources":["../../../src/routes/commentRoutes.ts"],"names":[],"mappings":"AAMA,QAAA,MAAM,MAAM,4CAAmB,CAAC;AAKhC,eAAe,MAAM,CAAC"}

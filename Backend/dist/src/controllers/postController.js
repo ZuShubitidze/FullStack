@@ -42,6 +42,7 @@ const fetchPosts = async (req, res) => {
                         id: true,
                         name: true,
                         email: true,
+                        Image: true,
                     },
                 },
             },
@@ -66,7 +67,7 @@ const getInfinitePosts = async (req, res) => {
     const { cursor, limit = 10, search = "" } = req.query; // Search Params
     // Search
     let where = {};
-    if (search && search.trim() !== "") {
+    if (search && typeof search === "string" && search.trim() !== "") {
         where = {
             OR: [
                 { title: { contains: search, mode: "insensitive" } },
@@ -79,16 +80,15 @@ const getInfinitePosts = async (req, res) => {
             take: Number(limit),
             ...(cursor
                 ? {
-                    skip: cursor ? 1 : 0, // Skip the cursor / last post if it exists
-                    cursor: cursor ? { id: Number(cursor) } : undefined,
+                    skip: 1, // Skip the cursor / last post if it exists
+                    cursor: { id: Number(cursor) },
                 }
                 : {}),
             where,
             orderBy: { createdAt: "desc" },
-            include: { author: { select: { name: true } } }, // Get Author Name with Post
+            include: { author: { select: { name: true, Image: true } } }, // Get Author Name with Post
         });
-        const nextCursor = posts.length === Number(limit) ? posts[posts.length - 1].id : null;
-        console.log(search);
+        const nextCursor = posts.length === Number(limit) ? posts[posts.length - 1]?.id : null;
         res.json({ posts, nextCursor });
     }
     catch (error) {
@@ -109,7 +109,7 @@ const updatePost = async (req, res) => {
                 title,
                 content,
                 published,
-                imageUrl,
+                Image: imageUrl,
             },
         });
         res.status(200).json({
@@ -147,6 +147,7 @@ const fetchPost = async (req, res) => {
                         id: true,
                         name: true,
                         email: true,
+                        Image: true,
                     },
                 },
                 comments: {
@@ -185,7 +186,6 @@ const deletePost = async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.user.id;
-        console.log(userId);
         // Guard
         if (!id || isNaN(Number(id))) {
             return res.status(400).json({ message: "Invalid or missing Post ID" });
@@ -207,7 +207,7 @@ const deletePost = async (req, res) => {
     }
     catch (error) {
         res.status(500).json({ message: "Server error" });
-        console.log("Failed to delete post ");
+        console.log("Failed to delete post", error);
     }
 };
 export { createPost, fetchPosts, updatePost, fetchPost, getInfinitePosts, deletePost, };

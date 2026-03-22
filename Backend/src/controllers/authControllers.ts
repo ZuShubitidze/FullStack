@@ -4,6 +4,7 @@ import { generateToken } from "../utils/generateToken.js";
 import {
   type LoginInput,
   type RegisterInput,
+  type UpdateProfileInput,
 } from "../validators/authValidators.js";
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
@@ -208,15 +209,15 @@ const refresh = async (req: Request, res: Response) => {
   }
 };
 
-const updateProfilePicture = async (req: Request, res: Response) => {
-  const { userId, imageUrl } = req.body;
+const updateProfile = async (req: Request, res: Response) => {
+  const { userId, imageUrl }: UpdateProfileInput = req.body;
   console.log(userId);
   try {
     const updatedUser = await prisma.user.update({
       where: { id: Number(userId) },
       data: { Image: imageUrl }, // Match capital 'I'
       select: {
-        // Keep this consistent with getMe select
+        // Consistent with getMe select
         id: true,
         email: true,
         name: true,
@@ -232,4 +233,4 @@ const updateProfilePicture = async (req: Request, res: Response) => {
   }
 };
 
-export { register, login, logout, getMe, refresh, updateProfilePicture };
+export { register, login, logout, getMe, refresh, updateProfile };

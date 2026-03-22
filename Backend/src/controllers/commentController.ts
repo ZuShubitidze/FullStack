@@ -5,15 +5,16 @@ import type { Request, Response } from "express";
 // Create Comment
 const createComment = async (req: Request, res: Response) => {
   try {
-    const { comment, authorId, postId, parentId } = req.body;
+    const { comment, postId, parentId } = req.body;
+
+    const authorId = req.user.id;
+
     // Not enough data from frontend
     if (!comment || !authorId || !postId) {
       return res.status(400).json({
         error: "Mising required data",
       });
     }
-
-    console.log(authorId);
 
     // Success
     const newComment = await prisma.comment.create({
@@ -100,10 +101,12 @@ const createComment = async (req: Request, res: Response) => {
 const updateComment = async (req: Request, res: Response) => {
   try {
     const { comment, id } = req.body;
+    const authorId = req.user.id;
 
     const updatedComment = await prisma.comment.update({
       where: {
         id: Number(id),
+        authorId: authorId,
       },
       // Data we are changing
       data: {

@@ -1,11 +1,13 @@
-export const registerSchema: z.ZodObject<{
+import { z } from "zod";
+export declare const registerSchema: z.ZodObject<{
     name: z.ZodString;
     email: z.ZodString;
     password: z.ZodString;
 }, z.core.$strip>;
-export const loginSchema: z.ZodObject<{
+export declare const loginSchema: z.ZodObject<{
     email: z.ZodString;
     password: z.ZodString;
 }, z.core.$strip>;
-import { z } from "zod";
+export type RegisterInput = z.infer<typeof registerSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
 //# sourceMappingURL=authValidators.d.ts.map
