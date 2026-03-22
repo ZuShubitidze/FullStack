@@ -10,6 +10,7 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import type { Request, Response, NextFunction } from "express";
 
 const app = express();
 const httpServer = createServer(app); // Wrap Express app
@@ -81,12 +82,12 @@ main();
 
 app.use(cookieParser());
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`${req.method} request to: ${req.url}`);
   next();
 });
 
-app.post("/test-upload", (req, res) => {
+app.post("/test-upload", (req: Request, res: Response) => {
   res.json({ message: "Server is alive" });
 });
 
@@ -102,8 +103,8 @@ httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-app.get("/", (req, res) => {
-  res.send("VERSION 4.0 - TESTING SOCKET");
+app.get("/", (req: Request, res: Response) => {
+  res.send("VERSION 4.0 - TESTING TS");
 });
 
 export { io };
