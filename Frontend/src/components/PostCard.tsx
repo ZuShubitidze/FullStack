@@ -4,7 +4,7 @@ import { Link } from "react-router";
 const PostCard = ({ post }: { post: Post }) => {
   return (
     <Link to={`/posts/${post.id}`}>
-      <li className="p-10 flex flex-col md:flex-row md:justify-between lg:justify-around dark:bg-zinc-800 bg-blue-300">
+      <li className="p-10 flex flex-col md:flex-row md:justify-between lg:justify-around dark:bg-zinc-800 bg-blue-300 border-b">
         {post.Image && (
           <section>
             <img src={post.Image} alt={post.title} className="w-100 h-100" />

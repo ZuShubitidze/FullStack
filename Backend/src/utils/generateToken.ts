@@ -1,12 +1,25 @@
 import jwt from "jsonwebtoken";
+import type { Response } from "express";
 
-export const generateToken = (userId, res) => {
+export const generateToken = (userId: number, res: Response) => {
+  const jwtSecret = process.env.JWT_SECRET;
+  const refreshSecret = process.env.REFRESH_SECRET;
+
+  if (!jwtSecret) {
+    throw new Error("JWT_SECRET is not defined in the environment variables");
+  }
   // Temporary Access Token
-  const accessToken = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+  const accessToken = jwt.sign({ id: userId }, jwtSecret, {
     expiresIn: "15m",
   });
+
+  if (!refreshSecret) {
+    throw new Error(
+      "REFRESH_SECRET is not defined in the environment variables",
+    );
+  }
   // Refresh Token
-  const refreshToken = jwt.sign({ id: userId }, process.env.REFRESH_SECRET, {
+  const refreshToken = jwt.sign({ id: userId }, refreshSecret, {
     expiresIn: "7d",
   });
 

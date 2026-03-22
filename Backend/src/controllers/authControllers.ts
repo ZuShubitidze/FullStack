@@ -1,22 +1,27 @@
 import { prisma } from "../lib/prisma.js";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/generateToken.js";
-import { registerSchema } from "../validators/authValidators.js";
+import {
+  type LoginInput,
+  type RegisterInput,
+} from "../validators/authValidators.js";
+import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
-// Register
-const register = async (req, res) => {
-  try {
-    // Validate request data
-    const validation = registerSchema.safeParse(req.body);
-    if (!validation.success) {
-      return res.status(400).json({
-        error: "Validation failed",
-        details: validation.error.flatten().fieldErrors, // Gives clean errors per field
-      });
+declare global {
+  namespace Express {
+    interface Request {
+      user: {
+        id: number;
+      };
     }
-    // Access validated data
-    const { name, email, password } = validation.data;
+  }
+}
+
+// Register
+const register = async (req: Request, res: Response) => {
+  try {
+    const { name, email, password }: RegisterInput = req.body;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -64,16 +69,17 @@ const register = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Login Error:", error);
+    console.error("Register Error:", error);
+    console.log("Error message:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Login
-const login = async (req, res) => {
+const login = async (req: Request, res: Response) => {
   try {
     // Get email and password from request
-    const { email, password } = req.body;
+    const { email, password }: LoginInput = req.body;
 
     // Basic Validation
     if (!email || !password) {
@@ -121,7 +127,7 @@ const login = async (req, res) => {
 };
 
 // Logout
-const logout = async (req, res) => {
+const logout = async (req: Request, res: Response) => {
   const isProd = process.env.NODE_ENV === "production";
   // Remove cookie
   res.cookie("refreshToken", "", {
@@ -139,7 +145,7 @@ const logout = async (req, res) => {
 };
 
 // Access current user for AuthContext / Frontend
-const getMe = async (req, res) => {
+const getMe = async (req: Request, res: Response) => {
   try {
     const fullUser = await prisma.user.findUnique({
       where: { id: req.user.id },
@@ -169,7 +175,7 @@ const getMe = async (req, res) => {
 };
 
 // Refresh Access Token with Refresh Token for security
-const refresh = async (req, res) => {
+const refresh = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
@@ -178,15 +184,23 @@ const refresh = async (req, res) => {
   }
 
   try {
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+    const refreshSecret = process.env.REFRESH_SECRET;
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!refreshSecret) {
+      throw new Error(
+        "REFRESH_SECRET is not defined in the environment variables",
+      );
+    }
+    if (!jwtSecret) {
+      throw new Error("JWT_SECRET is not defined in the environment variables");
+    }
+    const decoded = jwt.verify(refreshToken, refreshSecret) as {
+      id: string | number;
+    };
 
-    const newAccessToken = jwt.sign(
-      { id: decoded.id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "15m",
-      },
-    );
+    const newAccessToken = jwt.sign({ id: decoded.id }, jwtSecret, {
+      expiresIn: "15m",
+    });
 
     res.json({ accessToken: newAccessToken });
   } catch (error) {
@@ -194,7 +208,7 @@ const refresh = async (req, res) => {
   }
 };
 
-const updateProfilePicture = async (req, res) => {
+const updateProfilePicture = async (req: Request, res: Response) => {
   const { userId, imageUrl } = req.body;
   console.log(userId);
   try {

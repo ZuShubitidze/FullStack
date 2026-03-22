@@ -1,6 +1,8 @@
 import { prisma } from "../lib/prisma.js";
+import type { Request, Response } from "express";
+
 // Create
-const createPost = async (req, res) => {
+const createPost = async (req: Request, res: Response) => {
   try {
     const { title, content, authorId, imageUrl } = req.body;
 
@@ -25,7 +27,7 @@ const createPost = async (req, res) => {
     });
 
     res.status(201).json(post);
-  } catch (error) {
+  } catch (error: any) {
     // Prisma throws specific error codes if 'connect' fails
     if (error.code === "P2025") {
       return res.status(404).json({ error: "User not found" });
@@ -35,7 +37,7 @@ const createPost = async (req, res) => {
 };
 
 // Fetch All Posts
-const fetchPosts = async (req, res) => {
+const fetchPosts = async (req: Request, res: Response) => {
   try {
     const posts = await prisma.post.findMany({
       include: {
@@ -66,12 +68,12 @@ const fetchPosts = async (req, res) => {
 };
 
 // Infinite Posts
-const getInfinitePosts = async (req, res) => {
+const getInfinitePosts = async (req: Request, res: Response) => {
   const { cursor, limit = 10, search = "" } = req.query; // Search Params
 
   // Search
   let where = {};
-  if (search && search.trim() !== "") {
+  if (search && typeof search === "string" && search.trim() !== "") {
     where = {
       OR: [
         { title: { contains: search, mode: "insensitive" } },
@@ -85,8 +87,8 @@ const getInfinitePosts = async (req, res) => {
       take: Number(limit),
       ...(cursor
         ? {
-            skip: cursor ? 1 : 0, // Skip the cursor / last post if it exists
-            cursor: cursor ? { id: Number(cursor) } : undefined,
+            skip: 1, // Skip the cursor / last post if it exists
+            cursor: { id: Number(cursor) },
           }
         : {}),
       where,
@@ -95,7 +97,7 @@ const getInfinitePosts = async (req, res) => {
     });
 
     const nextCursor =
-      posts.length === Number(limit) ? posts[posts.length - 1].id : null;
+      posts.length === Number(limit) ? posts[posts.length - 1]?.id : null;
 
     res.json({ posts, nextCursor });
   } catch (error) {
@@ -105,7 +107,7 @@ const getInfinitePosts = async (req, res) => {
 };
 
 // Update
-const updatePost = async (req, res) => {
+const updatePost = async (req: Request, res: Response) => {
   try {
     const { id } = req.params; // Get ID from URL
     const { title, content, published, imageUrl } = req.body;
@@ -118,7 +120,7 @@ const updatePost = async (req, res) => {
         title,
         content,
         published,
-        imageUrl,
+        Image: imageUrl,
       },
     });
 
@@ -126,7 +128,7 @@ const updatePost = async (req, res) => {
       status: "success",
       data: { post: updatedPost },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.log("--- ERROR DETECTED ---");
     console.error("Message:", error.message);
     console.error("Prisma Code:", error.code);
@@ -139,7 +141,7 @@ const updatePost = async (req, res) => {
 };
 
 // Fetch Post
-const fetchPost = async (req, res) => {
+const fetchPost = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -195,7 +197,7 @@ const fetchPost = async (req, res) => {
 };
 
 // Delete Post
-const deletePost = async (req, res) => {
+const deletePost = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;

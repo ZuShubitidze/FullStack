@@ -1,8 +1,9 @@
 import { io } from "../server.js";
 import { prisma } from "../lib/prisma.js";
+import type { Request, Response } from "express";
 
 // Create Comment
-const createComment = async (req, res) => {
+const createComment = async (req: Request, res: Response) => {
   try {
     const { comment, authorId, postId, parentId } = req.body;
     // Not enough data from frontend
@@ -96,7 +97,7 @@ const createComment = async (req, res) => {
 };
 
 // Update Comment
-const updateComment = async (req, res) => {
+const updateComment = async (req: Request, res: Response) => {
   try {
     const { comment, id } = req.body;
 

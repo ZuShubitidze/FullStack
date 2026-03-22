@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma.js";
+import type { Request, Response } from "express";
 
-const getNotifications = async (req, res) => {
+const getNotifications = async (req: Request, res: Response) => {
   try {
     const notifications = await prisma.notification.findMany({
       where: { userId: req.user.id },
@@ -13,20 +14,20 @@ const getNotifications = async (req, res) => {
   }
 };
 
-const markAllAsRead = async (req, res) => {
+const markAllAsRead = async (req: Request, res: Response) => {
   try {
     const result = await prisma.notification.updateMany({
       where: { userId: req.user.id, isRead: false },
       data: { isRead: true },
     });
     res.status(200).json({ success: true, count: result.count });
-  } catch (error) {
+  } catch (error: any) {
     res.status(404).json({ message: "Failed to mark all as read" });
     console.log(error.message);
   }
 };
 
-const markAsRead = async (req, res) => {
+const markAsRead = async (req: Request, res: Response) => {
   const { notificationId } = req.body;
 
   try {
@@ -35,7 +36,7 @@ const markAsRead = async (req, res) => {
       data: { isRead: true },
     });
     res.status(200).json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     res.status(404).json({ message: "Failed to mark as read" });
     console.log(error.message);
   }

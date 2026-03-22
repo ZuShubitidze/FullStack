@@ -72,7 +72,7 @@ async function main() {
   try {
     await prisma.$connect();
     console.log("🚀 Database connected successfully");
-  } catch (e) {
+  } catch (e: any) {
     console.error("❌ Database connection failed:", e.message);
     process.exit(1);
   }
