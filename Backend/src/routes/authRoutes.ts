@@ -15,7 +15,7 @@ import {
 } from "../validators/authValidators.js";
 import { protect } from "../middleware/protect.js";
 import rateLimit from "express-rate-limit";
-import { asyncHandler } from "src/middleware/asyncHandler.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 const router = express.Router();
 

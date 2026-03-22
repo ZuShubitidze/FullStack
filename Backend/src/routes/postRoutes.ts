@@ -12,15 +12,15 @@ import {
   validate,
   validateParams,
   validateQuery,
-} from "src/middleware/validate.js";
+} from "../middleware/validate.js";
 import {
   createPostSchema,
   deletePostSchema,
   fetchPostSchema,
   getInfinitePostsSchema,
   updatePostSchema,
-} from "src/validators/postValidators.js";
-import { asyncHandler } from "src/middleware/asyncHandler.js";
+} from "../validators/postValidators.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 const router = express.Router();
 

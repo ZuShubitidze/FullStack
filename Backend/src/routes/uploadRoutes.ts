@@ -1,6 +1,6 @@
 import express from "express";
 import { getSignature } from "../controllers/uploadController.js";
-import { asyncHandler } from "src/middleware/asyncHandler.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 const router = express.Router();
 

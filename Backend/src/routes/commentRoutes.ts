@@ -6,9 +6,9 @@ import {
 import {
   createCommentSchema,
   updateCommentSchema,
-} from "src/validators/commentValidators.js";
-import { validate } from "src/middleware/validate.js";
-import { asyncHandler } from "src/middleware/asyncHandler.js";
+} from "../validators/commentValidators.js";
+import { validate } from "../middleware/validate.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 const router = express.Router();
 
