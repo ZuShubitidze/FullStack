@@ -8,7 +8,7 @@ import {
 } from "../validators/authValidators.js";
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { addEmailToQueue } from "src/queues/emailQueue.js";
+import { addEmailToQueue } from "../queues/emailQueue.js";
 
 declare global {
   namespace Express {
@@ -54,12 +54,9 @@ const register = async (req: Request, res: Response) => {
   // Generate JWT Token
   const token = generateToken(newUser.id, res);
 
-  addEmailToQueue(
-    newUser.email,
-    "Welcome to my app!",
-    "welcome",
-    { name: newUser.name }
-  );
+  addEmailToQueue(newUser.email, "Welcome to my app!", "welcome", {
+    name: newUser.name,
+  });
 
   res.status(201).json({
     status: "Success",
