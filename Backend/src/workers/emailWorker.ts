@@ -21,8 +21,9 @@ const worker = new Worker(
     const { to, subject, template, context } = job.data;
     console.log(`Processing email to: ${to}`);
     // Define _dirname for ES Modules
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
+    // const __filename = fileURLToPath(import.meta.url);
+    // const __dirname = path.dirname(__filename);
+    const __dirname = import.meta.dirname;
 
     // Load template file
     const templatePath = path.join(__dirname, `../templates/${template}.hbs`);

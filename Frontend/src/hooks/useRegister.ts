@@ -4,37 +4,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
-export const useRegister2 = () => {
-  const navigate = useNavigate();
-  const { setUser } = useAuth();
-
-  const register = async (name: string, email: string, password: string) => {
-    try {
-      const res = await api.post(`/auth/register`, {
-        name,
-        email,
-        password,
-      });
-
-      if (res.data) {
-        // Update global state
-        const userData = res.data.data.user;
-        setUser(userData);
-
-        console.log("Registration Successful");
-
-        navigate("/");
-      }
-    } catch (error: any) {
-      console.error(
-        "Registration failed:",
-        error.response?.data || error.message,
-      );
-    }
-  };
-  return { register };
-};
-
 interface Register {
   name: string;
   email: string;
@@ -66,7 +35,7 @@ export const useRegister = () => {
       queryClient.setQueryData(["user"], data.data.user);
       console.log(data);
 
-      toast.success(data.message);
+      toast.success(`Welcome, ${data.data.user.name}`);
 
       navigate("/posts");
     },
