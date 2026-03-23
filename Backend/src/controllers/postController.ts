@@ -4,6 +4,7 @@ import type {
 } from "src/validators/postValidators.js";
 import { prisma } from "../lib/prisma.js";
 import type { Request, Response } from "express";
+import { myCache } from "src/lib/cache.js";
 
 // Create
 const createPost = async (req: Request, res: Response) => {
@@ -23,7 +24,12 @@ const createPost = async (req: Request, res: Response) => {
     },
   });
 
+  // Clear all post-related caches so the feed refreshes immediately
+  myCache.flushAll();
+
   res.status(201).json(post);
+  // Pino Log
+  req.log.info({ post }, `A new post has been created`);
 };
 
 // Fetch All Posts
@@ -56,6 +62,18 @@ const fetchPosts = async (req: Request, res: Response) => {
 const getInfinitePosts = async (req: Request, res: Response) => {
   const { cursor, limit = 10, search = "" } = req.query; // Search Params
 
+  // Create a unique key for this specific request
+  const cacheKey = `posts_c${cursor}_l${limit}_s${search}`;
+
+  // Try to get data from cache
+  const cachedData = myCache.get(cacheKey);
+  if (cachedData) {
+    req.log.info("Cache Hit! Sending fast data");
+    return res.json(cachedData); // Return immediately from cache (super fast)
+  }
+
+  req.log.info("Cache Miss. Querying Prisma...");
+
   // Search
   let where = {};
   if (search && typeof search === "string" && search.trim() !== "") {
@@ -82,8 +100,12 @@ const getInfinitePosts = async (req: Request, res: Response) => {
 
   const nextCursor =
     posts.length === Number(limit) ? posts[posts.length - 1]?.id : null;
+  const responseData = { posts, nextCursor };
 
-  res.json({ posts, nextCursor });
+  // Save to cache for next person
+  myCache.set(cacheKey, responseData);
+
+  res.json(responseData);
 };
 
 // Update
@@ -104,16 +126,36 @@ const updatePost = async (req: Request, res: Response) => {
     },
   });
 
+  // Delete the old version from cache
+  myCache.del(`post_${id}`);
+  // Also clear the feed cache so the new title shows up in the list
+  myCache.flushAll();
+
   res.status(200).json({
     status: "success",
     data: { post: updatedPost },
   });
+  // Pino Log
+  req.log.info(
+    `A post has been updated ${updatedPost.title}, with ID - ${updatedPost.id}`,
+  );
 };
 
 // Fetch Post
 const fetchPost = async (req: Request, res: Response) => {
   const { id } = req.params;
 
+  // Caching
+  const cacheKey = `post_${id}`;
+  // Check Hit
+  const cachedPost = myCache.get(cacheKey);
+  if (cachedPost) {
+    req.log.info({ postId: id }, "Cached Hit: Sending post from memory");
+    return res.json(cachedPost);
+  }
+
+  // Cached Miss
+  req.log.info({ postId: id }, "Cache Miss: Querying Prisma");
   const post = await prisma.post.findUnique({
     where: {
       id: Number(id),
@@ -150,6 +192,9 @@ const fetchPost = async (req: Request, res: Response) => {
     },
   });
 
+  // Save to cache
+  myCache.set(cacheKey, post, 300); // 5 minutes
+
   res.status(200).json({
     status: "success",
     data: { post },
@@ -169,7 +214,13 @@ const deletePost = async (req: Request, res: Response) => {
 
   // Success
   await prisma.post.delete({ where: { id: Number(id) } });
+
+  // Delete the old version from cache
+  myCache.del(`post_${id}`);
+
   res.status(200).json({ message: `Deteled post ${post}` });
+  // Pino Log
+  req.log.info(`A post has been deleted ${post.title}, with ID - ${post.id}`);
 };
 
 export {

@@ -8,6 +8,7 @@ import {
 } from "../validators/authValidators.js";
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { addEmailToQueue } from "src/queues/emailQueue.js";
 
 declare global {
   namespace Express {
@@ -27,7 +28,6 @@ const register = async (req: Request, res: Response) => {
   const existingUser = await prisma.user.findUnique({
     where: { email: email },
   });
-
   if (existingUser) {
     return res.status(409).json({
       message: "User with given email already exists",
@@ -54,6 +54,13 @@ const register = async (req: Request, res: Response) => {
   // Generate JWT Token
   const token = generateToken(newUser.id, res);
 
+  addEmailToQueue(
+    newUser.email,
+    "Welcome to my app!",
+    "welcome",
+    { name: newUser.name }
+  );
+
   res.status(201).json({
     status: "Success",
     message: "User successfully created",
@@ -68,6 +75,11 @@ const register = async (req: Request, res: Response) => {
       accessToken: token,
     },
   });
+  // Pino Log
+  req.log.info(
+    { userId: newUser.id, email: newUser.email },
+    `User ${newUser.name} registered successfully`,
+  );
 };
 
 // Login

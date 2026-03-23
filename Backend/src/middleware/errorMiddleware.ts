@@ -8,6 +8,14 @@ export const errorHandler = (
   next: NextFunction,
 ) => {
   console.error("Error Logged:", err.message);
+  req.log.error(
+    {
+      err,
+      userId: req.user?.id,
+      url: req.url,
+    },
+    "Request Failed",
+  );
 
   // Handle Zod Validation Errors
   if (err instanceof ZodError) {

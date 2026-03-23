@@ -15,6 +15,7 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { errorHandler } from "./middleware/errorMiddleware.js";
 import { pinoHttp } from "pino-http";
+import "./workers/emailWorker.js";
 
 const app = express();
 const httpServer = createServer(app); // Wrap Express app
@@ -75,7 +76,7 @@ app.use(express.json());
 // Automatically logs every HTTP request and response
 const pinoOptions =
   process.env.NODE_ENV !== "production"
-    ? { transport: { target: "pino-pretty" } }
+    ? { transport: { target: "pino-pretty" }, options: { colorize: true } }
     : {};
 app.use(pinoHttp(pinoOptions));
 
