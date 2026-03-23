@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 import path from "path";
 import fs from "fs";
 import Handlebars from "handlebars";
+import { fileURLToPath } from "url";
 
 // Set up nodemailer
 const transporter = nodemailer.createTransport({
@@ -19,6 +20,9 @@ const worker = new Worker(
   async (job) => {
     const { to, subject, template, context } = job.data;
     console.log(`Processing email to: ${to}`);
+    // Define _dirname for ES Modules
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
 
     // Load template file
     const templatePath = path.join(__dirname, `../templates/${template}.hbs`);
