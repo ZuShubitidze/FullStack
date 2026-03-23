@@ -4,7 +4,7 @@ import type {
 } from "src/validators/postValidators.js";
 import { prisma } from "../lib/prisma.js";
 import type { Request, Response } from "express";
-import { myCache } from "src/lib/cache.js";
+import { myCache } from "../lib/cache.js";
 
 // Create
 const createPost = async (req: Request, res: Response) => {
