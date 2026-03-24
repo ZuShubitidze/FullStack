@@ -26,9 +26,19 @@ export const UpdateProfileSchema = z.object({
   imageUrl: z.string().url().startsWith("https://").optional().nullable(),
 });
 
+export const ForgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email("Please provide a valid email")
+    .toLowerCase(),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>;
+export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>;
 
 // 2. Wrap them for your middleware (which expects { body, query, params })
 // export const registerSchema = z.object({

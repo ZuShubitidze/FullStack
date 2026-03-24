@@ -2,6 +2,7 @@ import { prisma } from "../lib/prisma.js";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/generateToken.js";
 import {
+  type ForgotPasswordInput,
   type LoginInput,
   type RegisterInput,
   type UpdateProfileInput,
@@ -193,6 +194,7 @@ const refresh = async (req: Request, res: Response) => {
   res.json({ accessToken: newAccessToken });
 };
 
+// Update Profile
 const updateProfile = async (req: Request, res: Response) => {
   const { userId, imageUrl }: UpdateProfileInput = req.body;
 
@@ -212,4 +214,51 @@ const updateProfile = async (req: Request, res: Response) => {
   res.json(updatedUser);
 };
 
-export { register, login, logout, getMe, refresh, updateProfile };
+const health = async (req: Request, res: Response) => {
+  res.send("OK");
+};
+
+// Refresh Password
+// const forgotPassword = async (req: Request, res: Response) => {
+//   const { email }: ForgotPasswordInput = req.body;
+//   const user = await prisma.user.findUnique({ where: { email } });
+
+//   if (!user) {
+//     // For security, don't tell them whether account exists or not
+//     return res.json({
+//       message: "If an account exists, a reset email will be sent ",
+//     });
+//   }
+
+//   const jwtSecret = process.env.JWT_SECRET;
+//   if (!jwtSecret) {
+//     throw new Error("JWT_SECRET is not defined in the environment variables");
+//   }
+
+//   // Create a secure token
+//   const resetToken = jwt.sign({ id: user.id }, jwtSecret, {
+//     expiresIn: "15m",
+//   });
+
+//   await prisma.user.update({
+//     where: { id: user.id },
+//     data: {
+//       resetPasswordToken: resetToken,
+//       resetPasswordExpire: new Date(Date.now() + 3600000), // 1 hour from now
+//     },
+//   });
+
+//     // Add to BullMQ
+//   const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+//   await addEmailToQueue(
+//     user.email,
+//     "Password Reset Request",
+//     "reset-password",
+//     { name: user.name, resetLink: resetUrl, appName: "My Awesome App" }
+//   );
+
+//   res.json({ message: "Reset link sent to email" });
+// };
+
+export { register, login, logout, getMe, refresh, updateProfile, health };

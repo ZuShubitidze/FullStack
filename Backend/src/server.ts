@@ -1,4 +1,4 @@
-import "dotenv/config";
+// import "dotenv/config";
 import { prisma } from "./lib/prisma.js";
 import express from "express";
 import cookieParser from "cookie-parser";
@@ -30,7 +30,7 @@ const io = new Server(httpServer, {
   transports: ["websocket", "polling"],
 });
 
-// Basic connection test
+// Socket connection test
 io.on("connection", (socket) => {
   console.log("✅ User connected:", socket.id);
 
@@ -74,11 +74,18 @@ app.use(
 app.use(express.json());
 
 // Automatically logs every HTTP request and response
-const pinoOptions =
-  process.env.NODE_ENV !== "production"
-    ? { transport: { target: "pino-pretty" }, options: { colorize: true } }
-    : {};
-app.use(pinoHttp(pinoOptions));
+if (process.env.NODE_ENV !== "production") {
+  app.use(
+    pinoHttp({
+      transport: {
+        target: "pino-pretty",
+        options: { colorize: true },
+      },
+    }),
+  );
+} else {
+  app.use(pinoHttp());
+}
 
 // Ensure the server is running with DatabaseURL
 async function main() {

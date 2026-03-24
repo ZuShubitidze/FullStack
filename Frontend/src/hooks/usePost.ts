@@ -13,3 +13,15 @@ export const usePost = (postId: string | undefined) => {
     staleTime: 1000 * 60 * 5, // Keep fresh for 5 minutes
   });
 };
+
+export const usePostComments = (postId: string | undefined) => {
+  return useQuery({
+    queryKey: ["post", postId, "comments"],
+    queryFn: async () => {
+      const { data } = await api.get(`/posts/${postId}/comments`);
+      return data;
+    },
+    enabled: !!postId,
+    staleTime: 1000 * 60, // Comments get stale faster than the post
+  });
+};

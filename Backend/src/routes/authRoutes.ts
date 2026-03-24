@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getMe,
+  health,
   login,
   logout,
   refresh,
@@ -48,5 +49,6 @@ router.post("/login", authLimiter, validate(loginSchema), asyncHandler(login));
 router.post("/logout", asyncHandler(logout));
 router.get("/me", protect, asyncHandler(getMe));
 router.get("/refresh", asyncHandler(refresh));
+router.get("/health", asyncHandler(health));
 
 export default router;
