@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5173 --strictPort",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -25,7 +25,8 @@
     "socket.io-client": "^4.8.3",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
-    "tailwindcss": "^4.2.0"
+    "tailwindcss": "^4.2.0",
+    "vitest": "^4.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

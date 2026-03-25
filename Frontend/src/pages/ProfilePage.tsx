@@ -63,6 +63,7 @@ const ProfilePage = () => {
     setImage(null);
     setIsUploadingImage(false);
   };
+  console.log(user);
 
   return (
     <main className="flex flex-col gap-10 p-6 rounded-2xl dark:bg-zinc-800 bg-blue-300">
@@ -74,8 +75,8 @@ const ProfilePage = () => {
           <h2>Email: {user.email}</h2>
         </section>
       )}
-      {/* Image Section */}
-      {user?.Image && (
+      {/* Image */}
+      {user?.Image ? (
         <section className="flex flex-col gap-4">
           <img
             src={user.Image}
@@ -86,9 +87,16 @@ const ProfilePage = () => {
             onClick={() => setIsUploadingImage(true)}
             disabled={isUploadingImage}
           >
-            {user.Image ? "Update" : "Upload"} Profile Picture
+            {user.Image ? "Update" : "Upload"}
           </Button>
         </section>
+      ) : (
+        <Button
+          onClick={() => setIsUploadingImage(true)}
+          disabled={isUploadingImage}
+        >
+          Upload Profile Picture
+        </Button>
       )}
       {/* Upload Image */}
       {isUploadingImage && (
@@ -101,9 +109,7 @@ const ProfilePage = () => {
               className="mt-2 h-40 rounded object-cover"
             />
           )}
-          <Button type="submit">
-            {user?.Image ? "Update" : "Upload"} Profile Picture
-          </Button>
+          <Button type="submit">{user?.Image ? "Update" : "Upload"}</Button>
           <Button onClick={handleCancel}>Cancel</Button>
         </form>
       )}

@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+// import { prisma } from "@lib/prisma.js";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/generateToken.js";
 import {
@@ -49,7 +50,7 @@ const register = async (req: Request, res: Response) => {
       email: true,
       createdAt: true,
       Image: true,
-    }, // Skip Password automatically
+    },
   });
 
   // Generate JWT Token
@@ -168,30 +169,45 @@ const getMe = async (req: Request, res: Response) => {
 const refresh = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
 
-  if (!refreshToken) {
-    // Return 200 or 204 instead of 401 to keep the console clean
-    return res.status(200).json({ loggedIn: false, accessToken: null });
-  }
+  try {
+    if (!refreshToken) {
+      // Return 200 or 204 instead of 401 to keep the console clean
+      return res.status(200).json({ loggedIn: false, accessToken: null });
+    }
 
-  const refreshSecret = process.env.REFRESH_SECRET;
-  const jwtSecret = process.env.JWT_SECRET;
-  if (!refreshSecret) {
-    throw new Error(
-      "REFRESH_SECRET is not defined in the environment variables",
-    );
-  }
-  if (!jwtSecret) {
-    throw new Error("JWT_SECRET is not defined in the environment variables");
-  }
-  const decoded = jwt.verify(refreshToken, refreshSecret) as {
-    id: string | number;
-  };
+    const refreshSecret = process.env.REFRESH_SECRET;
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!refreshSecret) {
+      throw new Error(
+        "REFRESH_SECRET is not defined in the environment variables",
+      );
+    }
+    if (!jwtSecret) {
+      throw new Error("JWT_SECRET is not defined in the environment variables");
+    }
+    const decoded = jwt.verify(refreshToken, refreshSecret) as {
+      id: string | number;
+    };
 
-  const newAccessToken = jwt.sign({ id: decoded.id }, jwtSecret, {
-    expiresIn: "15m",
-  });
+    const user = await prisma.user.findUnique({
+      where: { id: Number(decoded.id) },
+      select: { id: true },
+    });
 
-  res.json({ accessToken: newAccessToken });
+    if (!user) {
+      res.clearCookie("refreshToken", { path: "/auth/refresh" });
+      return res.status(401).json({ message: "User no longer exists" });
+    }
+
+    const newAccessToken = jwt.sign({ id: decoded.id }, jwtSecret, {
+      expiresIn: "15m",
+    });
+
+    res.json({ accessToken: newAccessToken });
+  } catch (error) {
+    res.clearCookie("refreshToken", { path: "/auth/refresh" });
+    return res.status(401).json({ message: "Invalid refresh token" });
+  }
 };
 
 // Update Profile

@@ -12,4 +12,3 @@ redisConnection.on("error", (err) =>
   console.error("❌ Redis connection error:", err),
 );
 const info = await redisConnection.info("memory");
-console.log("Redis", info);

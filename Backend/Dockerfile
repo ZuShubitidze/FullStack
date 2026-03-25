@@ -20,6 +20,7 @@ RUN apk add --no-cache curl
 
 # Set environment to production
 ENV NODE_ENV=production
+ENV PRISMA_CLI_BINARY_TARGETS=linux-musl-arm64-openssl-3.0.x 
 
 # Copy only the package files
 COPY package*.json ./
@@ -29,6 +30,7 @@ RUN npm install --omit=dev
 
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
 # Copy the compiled code and templates from the builder stage
 COPY --from=builder /app/dist ./dist

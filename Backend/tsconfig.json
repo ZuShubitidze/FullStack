@@ -8,7 +8,8 @@
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "paths": {
-      "@generated/*": ["./generated/*"]
+      "@generated/*": ["./generated/*"],
+      "@lib/*": ["src/lib/*"]
     },
     "module": "NodeNext",
     "moduleResolution": "NodeNext",

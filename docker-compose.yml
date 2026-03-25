@@ -4,9 +4,9 @@ services:
     build:
       context: ./frontend
       args:
-        - VITE_API_URL=http://localhost:3000
+        - VITE_API_URL=http://localhost:3001
     ports:
-      - "5173:80" # Access UI at localhost:5173
+      - "9000:80"
     depends_on:
       api:
         condition: service_healthy
@@ -14,7 +14,7 @@ services:
   api:
     build: ./Backend # Tells Docker to look in the backend folder for the Dockerfile
     ports:
-      - "3000:3000"
+      - "4000:3000"
     env_file:
       - .env # Loads your backend variables
     environment:
@@ -26,11 +26,13 @@ services:
       - redis
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/auth/health"]
-      interval: 10s
+      interval: 20s
       timeout: 5s
       retries: 5
+      start_period: 30s
+    command: ["node", "dist/src/server.js"]
 
   redis:
     image: redis:alpine
     ports:
-      - "6379:6379"
+      - "6380:6379"

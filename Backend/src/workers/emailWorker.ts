@@ -4,7 +4,6 @@ import nodemailer from "nodemailer";
 import path from "path";
 import fs from "fs";
 import Handlebars from "handlebars";
-import { fileURLToPath } from "url";
 
 // Set up nodemailer
 const transporter = nodemailer.createTransport({
