@@ -1,5 +1,5 @@
 import type { markAsReadInput } from "src/validators/notificationsValidators.js";
-import { prisma } from "../lib/prisma.js";
+import prisma from "@lib/prisma";
 import type { Request, Response } from "express";
 
 const getNotifications = async (req: Request, res: Response) => {

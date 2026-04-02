@@ -2,7 +2,7 @@ import type {
   createPostInput,
   updatePostInput,
 } from "src/validators/postValidators.js";
-import { prisma } from "../lib/prisma.js";
+import prisma from "@lib/prisma";
 import type { Request, Response } from "express";
 import { myCache } from "../lib/cache.js";
 

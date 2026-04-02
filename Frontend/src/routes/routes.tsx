@@ -8,6 +8,7 @@ import RegisterPage from "@/pages/RegisterPage";
 import PostsPage from "@/pages/PostsPage";
 import PostPage from "@/pages/PostPage";
 import ProtectedRoutes from "./ProtectedRoutes";
+import AIPage from "@/pages/AIPage";
 
 const CreatePostPage = lazy(() => import("@/pages/CreatePostPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
@@ -22,6 +23,7 @@ const router = createBrowserRouter([
       { path: "/login", element: <LoginPage /> },
       { path: "/register", element: <RegisterPage /> },
       { path: "/posts", element: <PostsPage /> },
+      { path: "/AI", element: <AIPage /> },
       { path: "/posts/:id", element: <PostPage /> },
       // Protected Routes
       {

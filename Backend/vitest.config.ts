@@ -1,23 +1,18 @@
-// /Backend/vitest.config.ts
-import path from "path";
-import dotenv from "dotenv";
-import { defineProject } from "vitest/config";
+import { defineConfig } from "vitest/config";
 
-// Load test env for this specific project
-dotenv.config({ path: path.resolve(__dirname, ".env.test") });
-
-export default defineProject({
+export default defineConfig({
   test: {
-    name: "backend",
-    globals: true,
+    globals: true, // This allows you to use 'describe', 'it', 'expect' without importing them
     environment: "node",
     setupFiles: ["./src/tests/setup.ts"],
+    // alias: {
+    //   // Direct alias for the prisma file to avoid path confusion
+    //   "@lib/prisma": new URL("./src/lib/prisma.ts", import.meta.url).pathname,
+    // },
     alias: {
-      "@lib": path.resolve(__dirname, "./src/lib"),
+      "@lib/prisma": "./src/lib/prisma.ts",
     },
-    // Explicitly disable browser to kill the "browser.instances" error
-    browser: {
-      enabled: false,
-    },
+    // include: ["tests/**/*.test.ts", "tests/*.ts", "./tests/**.ts"],
+    exclude: ["node_modules"],
   },
 });

@@ -1,5 +1,4 @@
-import { prisma } from "../lib/prisma.js";
-// import { prisma } from "@lib/prisma.js";
+import prisma from "@lib/prisma";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/generateToken.js";
 import {
@@ -82,44 +81,54 @@ const register = async (req: Request, res: Response) => {
 };
 
 // Login
-const login = async (req: Request, res: Response) => {
-  // Get email and password from request
-  const { email, password }: LoginInput = req.body;
+// const login = async (req: Request, res: Response) => {
+//   // Get email and password from request
+//   const { email, password }: LoginInput = req.body;
 
-  // Check if user exists in the Database table
-  const existingUser = await prisma.user.findUnique({
-    where: { email: email },
-  });
+//   // Check if user exists in the Database table
+//   const existingUser = await prisma.user.findUnique({
+//     where: { email: email },
+//   });
+//   console.log("User Found:", !!existingUser);
+//   console.log("DATABASE_URL in Controller:", process.env.DATABASE_URL);
 
-  // If user with this email doesn't exist or password is incorrect
-  if (
-    !existingUser ||
-    !(await bcrypt.compare(password, existingUser.password))
-  ) {
-    return res.status(401).json({
-      error: "Incorrect email or password",
-    });
-  }
+//   // If user with this email doesn't exist or password is incorrect
+//   if (
+//     !existingUser ||
+//     !(await bcrypt.compare(password, existingUser.password))
+//   ) {
+//     return res.status(401).json({
+//       error: "Incorrect email or password",
+//     });
+//   }
+//   const isMatch = await bcrypt.compare(password, existingUser.password);
+//   console.log("Password Match:", isMatch);
 
-  // User exists and password is correct
-  // Generate JWT token
-  const token = generateToken(existingUser.id, res);
+//   // User exists and password is correct
+//   // Generate JWT token
+//   const token = generateToken(existingUser.id, res);
 
-  // Success
-  res.status(200).json({
-    status: "Success",
-    message: "Successfully logged in",
-    data: {
-      user: {
-        id: existingUser.id,
-        email: existingUser.email,
-        name: existingUser.name,
-        Image: existingUser.Image,
-      },
-      accessToken: token,
-    },
-  });
-};
+//   // Success
+//   res.status(200).json({
+//     status: "Success",
+//     message: "Successfully logged in",
+//     data: {
+//       user: {
+//         id: existingUser.id,
+//         email: existingUser.email,
+//         name: existingUser.name,
+//         Image: existingUser.Image,
+//       },
+//       accessToken: token,
+//     },
+//   });
+// };
+async function login(email: string, password: string) {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return false;
+  const match = await bcrypt.compare(password, user.password);
+  return match ? user : false;
+}
 
 // Logout
 const logout = async (req: Request, res: Response) => {

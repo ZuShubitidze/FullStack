@@ -1,6 +1,6 @@
 import "dotenv/config";
 import jwt from "jsonwebtoken";
-import { prisma } from "../lib/prisma.js";
+import prisma from "@lib/prisma";
 import type { Request, Response, NextFunction } from "express";
 
 // Define what JWT payload looks like

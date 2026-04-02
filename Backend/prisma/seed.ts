@@ -1,4 +1,4 @@
-import { prisma } from "src/lib/prisma.js";
+import prisma from "@lib/prisma";
 
 async function main() {
   // Replace 'user' with your actual model name

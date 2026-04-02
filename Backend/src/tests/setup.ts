@@ -2,14 +2,14 @@ import dotenv from "dotenv";
 import { afterAll, beforeAll, vi } from "vitest";
 import path from "path";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.test") });
-import { prisma } from "../lib/prisma.js";
+import prisma from "@lib/prisma";
 
 beforeAll(async () => {
-  // Confirm it's Neon now
   console.log("🚀 TEST SETUP DB:", process.env.DATABASE_URL);
 
   // Optional: If using a singleton that won't change,
   // you may need to manually re-assign the adapter or use a fresh client.
+  // await prisma.user.deleteMany();
   await prisma.$connect();
 });
 

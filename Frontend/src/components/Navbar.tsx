@@ -41,6 +41,14 @@ const Navbar = () => {
         >
           Posts
         </NavLink>
+        <NavLink
+          to="/AI"
+          className={({ isActive }) =>
+            isActive ? "active navlink" : "inactive navlink"
+          }
+        >
+          AI
+        </NavLink>
       </section>
       {/* User */}
       <section className="flex flex-row items-center gap-2">

@@ -9,13 +9,15 @@
     // See also https://aka.ms/tsconfig/module
     "paths": {
       "@generated/*": ["./generated/*"],
-      "@lib/*": ["src/lib/*"]
+      "@lib/*": ["src/lib/*"],
+      "@lib/prisma": ["src/lib/prisma.ts"],
+      "@lib/prisma.js": ["src/lib/prisma.ts"]
     },
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     // "target": "ES2022",
     "target": "ESNext",
-    "types": ["node"],
+    "types": ["jest", "node"],
     "esModuleInterop": true,
     "noEmit": false,
     "allowImportingTsExtensions": false,

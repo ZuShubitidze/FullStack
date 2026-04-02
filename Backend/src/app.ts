@@ -1,11 +1,12 @@
 // import "dotenv/config";
-import { prisma } from "./lib/prisma.js";
+import prisma from "@lib/prisma";
 import express from "express";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import geminiAIRoutes from "./routes/geminiAIRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import cors from "cors";
 import { createServer } from "http";
@@ -119,6 +120,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use("/upload", uploadRoutes);
 app.use("/auth", authRoutes);
 app.use("/posts", postRoutes);
+app.use("/geminiAI", geminiAIRoutes);
 app.use("/notifications", notificationRoutes);
 app.use("/posts/:postId/comments", commentRoutes);
 
