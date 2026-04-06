@@ -9,9 +9,9 @@
     // See also https://aka.ms/tsconfig/module
     "paths": {
       "@generated/*": ["./generated/*"],
-      "@lib/*": ["src/lib/*"],
-      "@lib/prisma": ["src/lib/prisma.ts"],
-      "@lib/prisma.js": ["src/lib/prisma.ts"]
+      "@lib/*": ["./src/lib/*"],
+      "@lib/prisma": ["./src/lib/prisma.ts"],
+      "@lib/prisma.js": ["./src/lib/prisma.ts"]
     },
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
@@ -21,8 +21,8 @@
     "esModuleInterop": true,
     "noEmit": false,
     "allowImportingTsExtensions": false,
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
+    // "ignoreDeprecations": "6.0",
+    // "baseUrl": ".",
     "outDir": "./dist",
     "rootDir": "./",
     // For nodejs:
