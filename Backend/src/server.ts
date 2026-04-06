@@ -1,5 +1,6 @@
 import { httpServer } from "./app.js";
-import prisma from "@lib/prisma";
+// import prisma from "@lib/prisma";
+import prisma from "./lib/prisma.js";
 
 const PORT = process.env.PORT || 3000;
 
