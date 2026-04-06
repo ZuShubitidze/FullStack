@@ -1,5 +1,5 @@
 import { io } from "../app.js";
-import prisma from "@lib/prisma";
+import prisma from "../lib/prisma.js";
 import type { Request, Response } from "express";
 
 // Create Comment
