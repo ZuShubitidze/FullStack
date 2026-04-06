@@ -1,4 +1,4 @@
-import type { markAsReadInput } from "src/validators/notificationsValidators.js";
+import type { markAsReadInput } from "../validators/notificationsValidators.js";
 import prisma from "@lib/prisma";
 import type { Request, Response } from "express";
 
