@@ -5,7 +5,7 @@ import { useState } from "react";
 
 const AIPage = () => {
   const [prompt, setPrompt] = useState<string>("");
-  const [geminiResponseData, setGeminiResponseData] = useState<string | null>(
+  const [geminiResponseData, setGeminiResponseData] = useState<any>(
     null,
   );
   const [loading, setLoading] = useState<boolean>(false);
@@ -15,8 +15,9 @@ const AIPage = () => {
       prompt,
     });
     setGeminiResponseData(
-      response.data.reply.candidates[0].content.parts[0].text,
+      response.data.reply
     );
+    console.log(geminiResponseData)
     setLoading(false);
     setPrompt("");
   };

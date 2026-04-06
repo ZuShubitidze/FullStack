@@ -21,6 +21,7 @@
     "esModuleInterop": true,
     "noEmit": false,
     "allowImportingTsExtensions": false,
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "outDir": "./dist",
     "rootDir": "./",

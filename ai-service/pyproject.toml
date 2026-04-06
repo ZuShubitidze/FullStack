@@ -1,0 +1,17 @@
+[project]
+name = "ai-service"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "google-generativeai>=0.8.6",
+    "pydantic>=2.12.5",
+]
+[tool.fastapi]
+entrypoint = "main:app"
+dependencies = [
+    "fastapi[standard]>=0.135.3",
+    "google-genai>=1.70.0",
+    "uvicorn[standard]>=0.43.0",
+]

@@ -1,32 +1,31 @@
 import ai from "@lib/geminiAI.js";
 import "dotenv/config";
 import type { Request, Response } from "express";
+import axios from "axios";
 
 const generateResponse = async (req: Request, res: Response) => {
   try {
     const { prompt } = req.body;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        temperature: 0.7,
+    const pythonResponse = await axios.post(
+      "http://127.0.0.1:8000/geminiAI/generateResponse",
+      {
+        prompt: prompt,
       },
-    });
+    );
 
-    // const response2 = await ai.models.generateContent({
+    // const response = await ai.models.generateContent({
     //   model: "gemini-2.5-flash",
-    //   contents: "Explain how AI works",
+    //   contents: prompt,
     //   config: {
     //     temperature: 0.7,
     //   },
     // });
 
-    console.log(response);
-    res.status(200).json({ reply: response });
+    res.status(200).json(pythonResponse.data);
   } catch (error: any) {
-    console.error("Gemini AI Error:", error.message);
-    res.status(error.status || 500).json({ error: error.message });
+    console.error("AI Service Error:", error.message);
+    res.status(500).json({ error: "Could not reach AI service" });
   }
 };
 
