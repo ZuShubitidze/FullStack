@@ -1,4 +1,3 @@
-import ai from "@lib/geminiAI.js";
 import "dotenv/config";
 import type { Request, Response } from "express";
 import axios from "axios";
