@@ -22,9 +22,9 @@ const generateResponse = async (req: Request, res: Response) => {
     // });
 
     res.status(200).json(pythonResponse.data);
-  } catch (error: any) {
-    console.error("AI Service Error:", error.message);
-    res.status(500).json({ error: "Could not reach AI service" });
+  } catch (error) {
+    res.status(500).json({ message: "Error in controller" });
+    console.log("Error in geminiAI Controller");
   }
 };
 

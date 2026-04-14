@@ -5,24 +5,25 @@ import { useState } from "react";
 
 const AIPage = () => {
   const [prompt, setPrompt] = useState<string>("");
-  const [geminiResponseData, setGeminiResponseData] = useState<any>(
-    null,
-  );
+  const [geminiResponseData, setGeminiResponseData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const handleGenerateResponse = async () => {
-    setLoading(true);
-    const response = await api.post("/geminiAI/generateResponse", {
-      prompt,
-    });
-    setGeminiResponseData(
-      response.data.reply
-    );
-    console.log(geminiResponseData)
-    setLoading(false);
-    setPrompt("");
+  const handleGenerateResponse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const response = await api.post("/geminiAI/generateResponse", {
+        prompt,
+      });
+      setGeminiResponseData(response.data.reply);
+      console.log(geminiResponseData);
+      setPrompt("");
+    } catch (error: any) {
+      console.log("Error message is:", error.message, error);
+    } finally {
+      setLoading(false);
+    }
   };
-  if (loading) return <p>Loading...</p>;
-
+  // Capital of France
   return (
     <main>
       <h1>Ask AI:</h1>
@@ -37,6 +38,7 @@ const AIPage = () => {
           Generate Response
         </Button>
       </form>
+      {loading && <h1>Loading...</h1>}
     </main>
   );
 };

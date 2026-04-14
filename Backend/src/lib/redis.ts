@@ -3,6 +3,7 @@ import { Redis } from "ioredis";
 // Use 'rediss' prefix for TLS on Render
 export const redisConnection = new Redis(process.env.REDIS_URL!, {
   maxRetriesPerRequest: null, // Required by BullMQ
+  connectTimeout: 10000,
 });
 
 redisConnection.on("connect", () =>

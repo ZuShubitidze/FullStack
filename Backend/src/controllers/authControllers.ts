@@ -23,112 +23,110 @@ declare global {
 
 // Register
 const register = async (req: Request, res: Response) => {
-  const { name, email, password }: RegisterInput = req.body;
+  try {
+    const { name, email, password }: RegisterInput = req.body;
 
-  // Check if user already exists
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email: email },
+    });
+    if (existingUser) {
+      return res.status(409).json({
+        message: "User with given email already exists",
+        error: "DUPLICATE_EMAIL",
+      });
+    }
+
+    // Hash Password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create User
+    const newUser = await prisma.user.create({
+      data: { name, email, password: hashedPassword },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        Image: true,
+      },
+    });
+
+    // Generate JWT Token
+    const token = generateToken(newUser.id, res);
+
+    addEmailToQueue(newUser.email, "Welcome to my app!", "welcome", {
+      name: newUser.name,
+    });
+
+    res.status(201).json({
+      status: "Success",
+      message: "User successfully created",
+      data: {
+        user: {
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          createdAt: newUser.createdAt,
+          Image: newUser.Image,
+        },
+        accessToken: token,
+      },
+    });
+    // Pino Log
+    req.log.info(
+      { userId: newUser.id, email: newUser.email },
+      `User ${newUser.name} registered successfully`,
+    );
+  } catch (error: any) {
+    console.log(error.message);
+  }
+};
+
+// Login
+const login = async (req: Request, res: Response) => {
+  // Get email and password from request
+  const { email, password }: LoginInput = req.body;
+
+  // Check if user exists in the Database table
   const existingUser = await prisma.user.findUnique({
     where: { email: email },
   });
-  if (existingUser) {
-    return res.status(409).json({
-      message: "User with given email already exists",
-      error: "DUPLICATE_EMAIL",
+  console.log("User Found:", !!existingUser);
+  console.log("DATABASE_URL in Controller:", process.env.DATABASE_URL);
+
+  // If user with this email doesn't exist or password is incorrect
+  if (
+    !existingUser ||
+    !(await bcrypt.compare(password, existingUser.password))
+  ) {
+    return res.status(401).json({
+      error: "Incorrect email or password",
     });
   }
+  const isMatch = await bcrypt.compare(password, existingUser.password);
+  console.log("Password Match:", isMatch);
 
-  // Hash Password
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
+  // User exists and password is correct
+  // Generate JWT token
+  const token = generateToken(existingUser.id, res);
 
-  // Create User
-  const newUser = await prisma.user.create({
-    data: { name, email, password: hashedPassword },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      createdAt: true,
-      Image: true,
-    },
-  });
-
-  // Generate JWT Token
-  const token = generateToken(newUser.id, res);
-
-  addEmailToQueue(newUser.email, "Welcome to my app!", "welcome", {
-    name: newUser.name,
-  });
-
-  res.status(201).json({
+  // Success
+  res.status(200).json({
     status: "Success",
-    message: "User successfully created",
+    message: "Successfully logged in",
     data: {
       user: {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        createdAt: newUser.createdAt,
-        Image: newUser.Image,
+        id: existingUser.id,
+        email: existingUser.email,
+        name: existingUser.name,
+        Image: existingUser.Image,
       },
       accessToken: token,
     },
   });
-  // Pino Log
-  req.log.info(
-    { userId: newUser.id, email: newUser.email },
-    `User ${newUser.name} registered successfully`,
-  );
 };
-
-// Login
-// const login = async (req: Request, res: Response) => {
-//   // Get email and password from request
-//   const { email, password }: LoginInput = req.body;
-
-//   // Check if user exists in the Database table
-//   const existingUser = await prisma.user.findUnique({
-//     where: { email: email },
-//   });
-//   console.log("User Found:", !!existingUser);
-//   console.log("DATABASE_URL in Controller:", process.env.DATABASE_URL);
-
-//   // If user with this email doesn't exist or password is incorrect
-//   if (
-//     !existingUser ||
-//     !(await bcrypt.compare(password, existingUser.password))
-//   ) {
-//     return res.status(401).json({
-//       error: "Incorrect email or password",
-//     });
-//   }
-//   const isMatch = await bcrypt.compare(password, existingUser.password);
-//   console.log("Password Match:", isMatch);
-
-//   // User exists and password is correct
-//   // Generate JWT token
-//   const token = generateToken(existingUser.id, res);
-
-//   // Success
-//   res.status(200).json({
-//     status: "Success",
-//     message: "Successfully logged in",
-//     data: {
-//       user: {
-//         id: existingUser.id,
-//         email: existingUser.email,
-//         name: existingUser.name,
-//         Image: existingUser.Image,
-//       },
-//       accessToken: token,
-//     },
-//   });
-// };
-async function login(email: string, password: string) {
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) return false;
-  const match = await bcrypt.compare(password, user.password);
-  return match ? user : false;
-}
 
 // Logout
 const logout = async (req: Request, res: Response) => {

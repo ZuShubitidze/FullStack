@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -7,6 +8,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 api_key = os.getenv("GOOGLE_API_KEY")
 
@@ -16,9 +25,8 @@ if not api_key:
 # Setup Gemini
 genai.configure(api_key=api_key)
 
+
 # Define what the request body should look like
-
-
 class AIRequest(BaseModel):
     prompt: str
 
@@ -26,7 +34,6 @@ class AIRequest(BaseModel):
 @app.post("/geminiAI/generateResponse")
 async def generate_response(request: AIRequest):
     try:
-        # Use 1.5 Flash for free tier
         model = genai.GenerativeModel("gemini-2.5-flash")
 
         response = model.generate_content(
