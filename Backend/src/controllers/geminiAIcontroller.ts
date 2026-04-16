@@ -7,20 +7,14 @@ const generateResponse = async (req: Request, res: Response) => {
     const { prompt } = req.body;
 
     const PYTHON_SERVICE_URL =
-      process.env.PYTHON_SERVICE_URL || "http://127.0.0.1:8000";
+      process.env.PYTHON_SERVICE_URL || "http://127.0.0.1:10000";
+    console.log("Calling URL:", PYTHON_SERVICE_URL);
 
     const pythonResponse = await axios.post(
       `${PYTHON_SERVICE_URL}/geminiAI/generateResponse`,
+      // "http://fullstack-1-w4l1:10000/geminiAI/generateResponse",
       { prompt },
     );
-
-    // const response = await ai.models.generateContent({
-    //   model: "gemini-2.5-flash",
-    //   contents: prompt,
-    //   config: {
-    //     temperature: 0.7,
-    //   },
-    // });
 
     res.status(200).json(pythonResponse.data);
   } catch (error: any) {
@@ -32,3 +26,5 @@ const generateResponse = async (req: Request, res: Response) => {
 };
 
 export { generateResponse };
+// uv run --active uvicorn main:app --host 0.0.0.0 --port $PORT
+// uv run --active uvicorn main:app --host 0.0.0.0 --port 8000

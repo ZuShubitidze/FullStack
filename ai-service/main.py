@@ -31,6 +31,11 @@ class AIRequest(BaseModel):
     prompt: str
 
 
+@app.get("/")
+def health_check():
+    return {"status": "healthy"}
+
+
 @app.post("/geminiAI/generateResponse")
 async def generate_response(request: AIRequest):
     try:
@@ -45,8 +50,3 @@ async def generate_response(request: AIRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/")
-def home():
-    return {"status": "AI Service is running"}
