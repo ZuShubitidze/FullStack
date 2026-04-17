@@ -15,6 +15,9 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "imports": {
+    "#lib/*": "./dist/src/lib/*.js"
+  },
   "dependencies": {
     "@faker-js/faker": "^10.4.0",
     "@google/genai": "^1.48.0",
