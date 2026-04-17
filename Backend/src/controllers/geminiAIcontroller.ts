@@ -1,27 +1,22 @@
 import "dotenv/config";
 import type { Request, Response } from "express";
 import axios from "axios";
+import ai from "@lib/geminiAI.js";
 
 const generateResponse = async (req: Request, res: Response) => {
   try {
     const { prompt } = req.body;
 
-    const PYTHON_SERVICE_URL =
-      process.env.PYTHON_SERVICE_URL || "http://127.0.0.1:10000";
-    console.log("Calling URL:", PYTHON_SERVICE_URL);
+    const AIResponse = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      // contents: prompt
+      contents: "Capital of France",
+    });
 
-    const pythonResponse = await axios.post(
-      `${PYTHON_SERVICE_URL}/geminiAI/generateResponse`,
-      // "http://fullstack-1-w4l1:10000/geminiAI/generateResponse",
-      { prompt },
-    );
-
-    res.status(200).json(pythonResponse.data);
+    res.status(200).json();
   } catch (error: any) {
     console.error("Error in geminiAI Controller:", error.message);
-    res
-      .status(500)
-      .json({ message: "Error communicating with Python service" });
+    res.status(500).json({ message: "Error communicating with AI" });
   }
 };
 
