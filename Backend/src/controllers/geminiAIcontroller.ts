@@ -1,6 +1,6 @@
 import "dotenv/config";
 import type { Request, Response } from "express";
-import ai from "@lib/geminiAI.js";
+import ai from "../lib/geminiAI.js";
 
 const generateResponse = async (req: Request, res: Response) => {
   try {
