@@ -6,7 +6,7 @@
   "scripts": {
     "test": "dotenv -e .env.test -- vitest",
     "build": "npx prisma generate && tsc && tsc-alias && mkdir -p dist/src/templates && cp -r src/templates/. dist/src/templates/",
-    "start": "node dist/src/server.js",
+    "start": "node tsconfig-paths/register dist/src/server.js",
     "dev": "tsx watch src/server.ts",
     "db:push": "prisma db push",
     "studio": "prisma studio"
@@ -15,9 +15,6 @@
   "author": "",
   "license": "ISC",
   "description": "",
-  "imports": {
-    "#lib/*": "./dist/src/lib/*.js"
-  },
   "dependencies": {
     "@faker-js/faker": "^10.4.0",
     "@google/genai": "^1.48.0",
