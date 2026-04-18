@@ -6,7 +6,7 @@
   "scripts": {
     "test": "dotenv -e .env.test -- vitest",
     "build": "npx prisma generate && tsc && tsc-alias && mkdir -p dist/src/templates && cp -r src/templates/. dist/src/templates/",
-    "start": "node tsconfig-paths/register dist/src/server.js",
+    "start": "node dist/src/server.js",
     "dev": "tsx watch src/server.ts",
     "db:push": "prisma db push",
     "studio": "prisma studio"
