@@ -15,7 +15,6 @@ const AIPage = () => {
         prompt,
       });
       setGeminiResponseData(response.data.reply);
-      console.log(geminiResponseData);
       setPrompt("");
     } catch (error: any) {
       console.log("Error message is:", error.message, error);
@@ -23,6 +22,8 @@ const AIPage = () => {
       setLoading(false);
     }
   };
+  console.log(geminiResponseData);
+
   // Capital of France
   return (
     <main>

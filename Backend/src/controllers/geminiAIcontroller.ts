@@ -7,12 +7,17 @@ const generateResponse = async (req: Request, res: Response) => {
     const { prompt } = req.body;
 
     const AIResponse = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      // contents: prompt
-      contents: "Capital of France",
+      model: "gemini-2.5-flash-lite",
+      contents: prompt,
+      config: { temperature: 0.7 },
     });
 
-    res.status(200).json();
+    // Use .text to get the string from the first candidate
+    const replyText = AIResponse.text;
+
+    // Log it to verify it's not empty in your Render logs
+    console.log("Gemini Response:", replyText);
+    res.status(200).json({ reply: replyText });
   } catch (error: any) {
     console.error("Error in geminiAI Controller:", error.message);
     res.status(500).json({ message: "Error communicating with AI" });
@@ -20,5 +25,3 @@ const generateResponse = async (req: Request, res: Response) => {
 };
 
 export { generateResponse };
-// uv run --active uvicorn main:app --host 0.0.0.0 --port $PORT
-// uv run --active uvicorn main:app --host 0.0.0.0 --port 8000
