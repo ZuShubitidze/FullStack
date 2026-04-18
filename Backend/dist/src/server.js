@@ -1,5 +1,5 @@
-import "dotenv/config";
 import "module-alias/register";
+import "dotenv/config";
 import { prisma } from "./lib/prisma.js";
 import express from "express";
 import cookieParser from "cookie-parser";
