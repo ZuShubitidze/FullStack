@@ -25,6 +25,7 @@ if not api_key:
 
 # Setup Gemini
 genai.configure(api_key=api_key)
+model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
 
 # Define what the request body should look like
@@ -40,7 +41,7 @@ def health_check():
 @app.post("/generate")
 async def generate_response(request: AIRequest):
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel(model_name="gemini-2.5-flash-lite")
         response = model.generate_content(
             request.prompt,
             generation_config={"temperature": 0.7}
