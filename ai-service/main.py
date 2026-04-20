@@ -11,8 +11,8 @@ app = FastAPI(redirect_slashes=False)
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=[""],
     # allow_origins=["http://localhost:5173", "http://localhost:3000"],
-    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,22 +32,19 @@ class AIRequest(BaseModel):
     prompt: str
 
 
-@app.get("/health")
+@app.get("/")
 def health_check():
     return {"status": "healthy"}
 
 
 @app.post("/generate")
-# async def generate_response(request: AIRequest):
-#     try:
-#         model = genai.GenerativeModel("gemini-1.5-flash")
-#         response = model.generate_content(
-#             request.prompt,
-#             generation_config={"temperature": 0.7}
-#         )
-#         return {"reply": response.text}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-async def test_generate(request: dict):
-    print(f"Received request: {request}")  # This will show in Render logs
-    return {"reply": "Python reached successfully"}
+async def generate_response(request: AIRequest):
+    try:
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(
+            request.prompt,
+            generation_config={"temperature": 0.7}
+        )
+        return {"reply": response.text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
