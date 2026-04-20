@@ -19,10 +19,9 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const { notifications, markAllAsRead, unreadCount, markAsRead } =
     useNotifications();
-  // console.log("Notifications:", notifications, "Unread Count:", unreadCount);
 
   return (
-    <nav className="flex flex-col md:flex-row p-4 md:p-8 text-2xl md:justify-between font-bol">
+    <nav className="flex flex-col md:flex-row py-4 px-4 md:px-8 text-2xl md:justify-between font-bol">
       {/* General Display */}
       <section className="flex flex-row gap-4 md:gap-0">
         <NavLink

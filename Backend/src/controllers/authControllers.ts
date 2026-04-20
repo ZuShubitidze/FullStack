@@ -237,10 +237,6 @@ const updateProfile = async (req: Request, res: Response) => {
   res.json(updatedUser);
 };
 
-const health = async (req: Request, res: Response) => {
-  res.send("OK");
-};
-
 // Refresh Password
 // const forgotPassword = async (req: Request, res: Response) => {
 //   const { email }: ForgotPasswordInput = req.body;
@@ -284,4 +280,4 @@ const health = async (req: Request, res: Response) => {
 //   res.json({ message: "Reset link sent to email" });
 // };
 
-export { register, login, logout, getMe, refresh, updateProfile, health };
+export { register, login, logout, getMe, refresh, updateProfile };

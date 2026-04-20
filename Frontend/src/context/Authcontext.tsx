@@ -32,25 +32,49 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(res.data.data?.user);
     } catch (err) {
       setUser(null);
-    } finally {
-      setLoading(false);
     }
+    // finally {
+    //   setLoading(false);
+    // }
   };
 
-  // Refresh Token and Check Auth
+  // // Refresh Token and Check Auth
+  // useEffect(() => {
+  //   const init = async () => {
+  //     try {
+  //       // 1. Try to get a fresh AccessToken using the Refresh Cookie
+  //       const res = await api.get("/auth/refresh");
+  //       const token = res.data.accessToken;
+  //       if (token) {
+  //         setAccessToken(token);
+  //         setTokenInApi(token);
+  //         // 2. Once we have the token, get user details
+  //         await checkAuth(token); // Pass token directly
+  //       }
+  //     } catch (error) {
+  //       setUser(null);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   init();
+  // }, []);
+
   useEffect(() => {
     const init = async () => {
       try {
-        // 1. Try to get a fresh AccessToken using the Refresh Cookie
-        const res = await api.get("/auth/refresh");
+        const res = await api.get("/auth/refresh", { withCredentials: true });
+
         const token = res.data.accessToken;
         if (token) {
           setAccessToken(token);
           setTokenInApi(token);
-          // 2. Once we have the token, get user details
-          await checkAuth(token); // Pass token directly
+          await checkAuth(token);
+        } else {
+          setUser(null);
         }
       } catch (error) {
+        console.error("Auth initialization failed:", error);
         setUser(null);
       } finally {
         setLoading(false);
