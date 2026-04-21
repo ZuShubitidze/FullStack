@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from routes.ai_routes import router as ai_router
+from src.routes.ai_routes import router as ai_router
 
 load_dotenv()
 
