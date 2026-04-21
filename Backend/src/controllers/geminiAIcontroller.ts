@@ -91,8 +91,6 @@ const chat = async (req: Request, res: Response) => {
       { role: "model", parts: [{ text: msg.text }] },
     ]);
 
-    // const history = previousMessages
-
     // Call Python service on Render
     const pythonServiceUrl = "https://fullstack-1-w4l1.onrender.com/chat";
     const response = await axios.post(
@@ -117,7 +115,7 @@ const chat = async (req: Request, res: Response) => {
       reply: replyText,
       data: response.data,
       date: response.headers["date"],
-      chatHistory: history,
+      chatHistory: formattedHistory,
     });
   } catch (error: any) {
     console.error("Error calling Python service:", error);

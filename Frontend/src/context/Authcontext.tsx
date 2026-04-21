@@ -28,38 +28,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const res = await api.get("/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
-      }); // Interceptor now handles Bearer
+      });
       setUser(res.data.data?.user);
     } catch (err) {
       setUser(null);
     }
-    // finally {
-    //   setLoading(false);
-    // }
   };
 
-  // // Refresh Token and Check Auth
-  // useEffect(() => {
-  //   const init = async () => {
-  //     try {
-  //       // 1. Try to get a fresh AccessToken using the Refresh Cookie
-  //       const res = await api.get("/auth/refresh");
-  //       const token = res.data.accessToken;
-  //       if (token) {
-  //         setAccessToken(token);
-  //         setTokenInApi(token);
-  //         // 2. Once we have the token, get user details
-  //         await checkAuth(token); // Pass token directly
-  //       }
-  //     } catch (error) {
-  //       setUser(null);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   init();
-  // }, []);
-
+  // Refresh Token and Check Auth
   useEffect(() => {
     const init = async () => {
       try {

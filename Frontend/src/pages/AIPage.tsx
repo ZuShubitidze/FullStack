@@ -4,34 +4,38 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
   getAIResponseHistory,
-  useGenerateAIResponse,
+  useGenerateAIResponseChat,
 } from "@/hooks/useGenerateAIResponse";
 import type { AIRequest } from "@/types/aiRequest.interface";
 import { useState } from "react";
 
 const AIPage = () => {
   const [showHistory, setShowHistory] = useState<boolean>(false);
-  const [prompt, setPrompt] = useState<string>("");
+  const [chatPrompt, setChatPrompt] = useState<string>("");
   const [date, setDate] = useState<string>();
   const [response, setResponse] = useState<string>();
+  const [chatResponse, setChatResponse] = useState<string>();
 
-  // Generate Response
-  const { mutateAsync: generateResponse, isPending } = useGenerateAIResponse();
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Generate Chat
+  const { mutateAsync: generateChatResponse, isPending: isChatPending } =
+    useGenerateAIResponseChat();
+  const handleSubmitChat = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await generateResponse(prompt);
+    const result = await generateChatResponse(chatPrompt);
     setDate(result.date);
-    setResponse(result.reply);
-    setPrompt("");
+    setChatResponse(result.reply);
+    setChatPrompt("");
+    console.log(result);
   };
-  const reply = response?.replaceAll("*", "");
+  const chatReply = chatResponse?.replaceAll("*", "");
   const convertedDate = new Date(date!).toLocaleString("en-US", {
     dateStyle: "long",
   });
 
-  // Get AI Requests History
+  // Get Chat History
   const { AIResponseHistory } = getAIResponseHistory();
-  // Get AI Request
+
+  // Get Single AI Request
   const handleGetAIResponse = (e: React.FormEvent, id: number) => {
     e.preventDefault();
     const fullItem: AIRequest | undefined = AIResponseHistory.find(
@@ -42,30 +46,29 @@ const AIPage = () => {
     }
   };
 
-  if (isPending) return <SkeletonCard />;
+  if (isChatPending) return <SkeletonCard />;
 
-  // Capital of France
   return (
     <main className="flex flex-col md:flex-row gap-20 md:gap-30 lg:gap-40">
-      {/* Question Section */}
+      {/* Chat */}
       <section className="w-100 lg:w-120 mb-10 md:mb-0">
-        <h1>Ask AI:</h1>
+        <h1>Chat AI:</h1>
         {/* Form Input */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-10">
+        <form onSubmit={handleSubmitChat} className="flex flex-col gap-10">
           <Textarea
             placeholder="Type your prompt here..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
+            value={chatPrompt}
+            onChange={(e) => setChatPrompt(e.target.value)}
           />
-          <Button type="submit" disabled={isPending}>
-            Generate Response
+          <Button type="submit" disabled={isChatPending}>
+            Chat
           </Button>
         </form>
         {/* AI Answer */}
         {response && (
           <section className="mt-10">
             <span>Date: {convertedDate}</span>
-            <p>{reply}</p>
+            <p>{chatReply}</p>
           </section>
         )}
       </section>

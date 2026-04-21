@@ -3,12 +3,12 @@ import { useAuth } from "@/context/Authcontext";
 import type { AIRequest } from "@/types/aiRequest.interface";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGenerateAIResponse = () => {
+export const useGenerateAIResponseChat = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (prompt: string) => {
-      const { data } = await api.post("/geminiAI/generateResponse", {
+      const { data } = await api.post("/geminiAI/chat", {
         prompt,
       });
 
