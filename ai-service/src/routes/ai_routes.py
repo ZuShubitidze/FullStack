@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from models.schema import AIRequest
+from src.models.schema import AIRequest
 from services.gemini import get_gemini_model
 
 router = APIRouter()
