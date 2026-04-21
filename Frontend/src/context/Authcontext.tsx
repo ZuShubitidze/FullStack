@@ -67,8 +67,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         const token = res.data.accessToken;
         if (token) {
-          setAccessToken(token);
           setTokenInApi(token);
+          setAccessToken(token);
           await checkAuth(token);
         } else {
           setUser(null);

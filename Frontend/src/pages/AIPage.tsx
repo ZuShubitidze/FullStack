@@ -20,10 +20,9 @@ const AIPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await generateResponse(prompt);
-    setDate(result.AIResponse.sdkHttpResponse.headers.date);
+    setDate(result.date);
     setResponse(result.reply);
     setPrompt("");
-    console.log(result);
   };
   const reply = response?.replaceAll("*", "");
   const convertedDate = new Date(date!).toLocaleString("en-US", {
@@ -38,7 +37,6 @@ const AIPage = () => {
     const fullItem: AIRequest | undefined = AIResponseHistory.find(
       (item) => item.id === id,
     );
-
     if (fullItem) {
       setResponse(fullItem.text);
     }
