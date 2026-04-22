@@ -1,30 +1,50 @@
 import { getPreview } from "@/components/GetPreview";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   getAIResponseHistory,
   useGenerateAIResponseChat,
 } from "@/hooks/useGenerateAIResponse";
 import type { AIRequest } from "@/types/aiRequest.interface";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const AIPage = () => {
   const [showHistory, setShowHistory] = useState<boolean>(false);
-  const [chatPrompt, setChatPrompt] = useState<string>("");
+  const [prompt, setPrompt] = useState<string>("");
+  const [image, setImage] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [date, setDate] = useState<string>();
-  const [response, setResponse] = useState<string>();
   const [chatResponse, setChatResponse] = useState<string>();
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImage(file);
+      const objectUrl = URL.createObjectURL(file);
+      setPreview(objectUrl);
+    } else {
+      setImage(null);
+      setPreview(null);
+    }
+  };
+  // Cleanup function to free up memory
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   // Generate Chat
   const { mutateAsync: generateChatResponse, isPending: isChatPending } =
     useGenerateAIResponseChat();
   const handleSubmitChat = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await generateChatResponse(chatPrompt);
+    const result = await generateChatResponse({ prompt, image });
     setDate(result.date);
     setChatResponse(result.reply);
-    setChatPrompt("");
+    setPrompt("");
     console.log(result);
   };
   const chatReply = chatResponse?.replaceAll("*", "");
@@ -42,7 +62,7 @@ const AIPage = () => {
       (item) => item.id === id,
     );
     if (fullItem) {
-      setResponse(fullItem.text);
+      setChatResponse(fullItem.text);
     }
   };
 
@@ -57,15 +77,33 @@ const AIPage = () => {
         <form onSubmit={handleSubmitChat} className="flex flex-col gap-10">
           <Textarea
             placeholder="Type your prompt here..."
-            value={chatPrompt}
-            onChange={(e) => setChatPrompt(e.target.value)}
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
           />
+          <Input type="file" accept="image/*" onChange={handleImageChange} />
+          {preview && (
+            <div className="mt-4">
+              <img
+                src={preview}
+                alt="Preview"
+                className="w-40 h-40 object-cover rounded-lg border"
+              />
+              <Button
+                onClick={() => {
+                  setImage(null);
+                  setPreview(null);
+                }}
+              >
+                Remove
+              </Button>
+            </div>
+          )}
           <Button type="submit" disabled={isChatPending}>
             Chat
           </Button>
         </form>
         {/* AI Answer */}
-        {response && (
+        {chatResponse && (
           <section className="mt-10">
             <span>Date: {convertedDate}</span>
             <p>{chatReply}</p>
@@ -82,7 +120,7 @@ const AIPage = () => {
             }
           }}
         >
-          {showHistory ? "Close History" : "Show History"}
+          {showHistory ? "Close Chat History" : "Show Chat History"}
         </Button>
         {/* Requests History */}
         {showHistory && (
