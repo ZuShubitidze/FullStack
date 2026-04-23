@@ -2,7 +2,7 @@ import "dotenv/config";
 import type { Request, Response } from "express";
 import prisma from "../lib/prisma.js";
 import axios from "axios";
-import cloudinary from "@lib/cloudinary.js";
+import cloudinary from "../lib/cloudinary.js";
 
 const getAIRequests = async (req: Request, res: Response) => {
   const userId = req.user.id;
