@@ -2,7 +2,10 @@ import axios from "axios";
 import { toast } from "sonner";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL:
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:3000" ||
+    "https://fullstack-sd59.onrender.com",
   withCredentials: true, // For cookies/sessions
 });
 
@@ -18,6 +21,12 @@ api.interceptors.response.use(
     // If the failed request WAS the refresh route, STOP HERE
     if (originalRequest.url.includes("refresh") || originalRequest._retry) {
       return Promise.reject(error);
+    }
+
+    if (status === 401 && !originalRequest._retry) {
+      if (originalRequest.url.includes("/auth/refresh")) {
+        return Promise.reject(error);
+      }
     }
 
     // If error is 401 and we haven't tried to refresh yet

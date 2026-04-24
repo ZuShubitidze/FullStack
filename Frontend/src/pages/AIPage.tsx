@@ -10,6 +10,16 @@ import {
 import type { AIRequest } from "@/types/aiRequest.interface";
 import { useEffect, useState } from "react";
 
+interface ChatHistory {
+  role: string;
+  parts: {
+    role: string;
+    index: {
+      text: string;
+    };
+  };
+}
+
 const AIPage = () => {
   const [showHistory, setShowHistory] = useState<boolean>(false);
   const [prompt, setPrompt] = useState<string>("");
@@ -17,7 +27,9 @@ const AIPage = () => {
   const [preview, setPreview] = useState<string | null>(null);
   const [date, setDate] = useState<string>();
   const [chatResponse, setChatResponse] = useState<string>();
+  const [chatHistory, setChatHistory] = useState<ChatHistory | null>(null);
 
+  // Image Change
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -45,7 +57,9 @@ const AIPage = () => {
     setDate(result.date);
     setChatResponse(result.reply);
     setPrompt("");
-    console.log(result);
+    setChatHistory(result.chatHistory);
+    console.log("Full Result:", result);
+    console.log("Chat History:", chatHistory, result.chatHistory);
   };
   const chatReply = chatResponse?.replaceAll("*", "");
   const convertedDate = new Date(date!).toLocaleString("en-US", {
@@ -112,7 +126,7 @@ const AIPage = () => {
       </section>
       {/* History Section */}
       <section className="w-140">
-        {/* Show / Close Button */}
+        {/* Show / Close History Button */}
         <Button
           onClick={() => {
             {

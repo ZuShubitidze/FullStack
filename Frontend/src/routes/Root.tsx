@@ -21,6 +21,7 @@ const Root = () => {
       socket.off("new_notification");
     };
   }, [socket]);
+
   const { loading } = useAuth();
   if (loading) return <div>Loading...</div>;
 

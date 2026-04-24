@@ -23,40 +23,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     import("@/api").then((module) => module.setTokenInApi(accessToken || null));
   }, [accessToken]);
 
-  // Check if user is logged in on every page load
-  const checkAuth = async (token: string) => {
-    try {
-      const res = await api.get("/auth/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setUser(res.data.data?.user);
-    } catch (err) {
-      setUser(null);
-    }
-  };
-
   // Refresh Token and Check Auth
   useEffect(() => {
+    let isMounted = true;
+
     const init = async () => {
       try {
         const res = await api.get("/auth/refresh", { withCredentials: true });
 
         const token = res.data.accessToken;
-        if (token) {
+        if (token && isMounted) {
           setTokenInApi(token);
           setAccessToken(token);
-          await checkAuth(token);
-        } else {
-          setUser(null);
+
+          const userRes = await api.get("auth/me", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          setUser(userRes.data.data?.user);
         }
       } catch (error) {
         console.error("Auth initialization failed:", error);
         setUser(null);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
+
     init();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Logout
