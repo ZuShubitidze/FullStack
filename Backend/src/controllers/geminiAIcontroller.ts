@@ -4,6 +4,8 @@ import prisma from "../lib/prisma.js";
 import axios from "axios";
 import cloudinary from "../lib/cloudinary.js";
 
+const pythonServiceUrl = "https://fullstack-1-w4l1.onrender.com/chat";
+
 const getAIRequests = async (req: Request, res: Response) => {
   const userId = req.user.id;
 
@@ -77,4 +79,17 @@ const chat = async (req: Request, res: Response) => {
   }
 };
 
-export { getAIRequests, chat };
+const generateImage = async (req: Request, res: Response) => {
+  const { prompt } = req.body;
+  // const pythonServiceUrl = "https://fullstack-1-w4l1.onrender.com/chat"
+  console.log(pythonServiceUrl);
+  const pythonRes = await axios.post(`${pythonServiceUrl}/generateImage`, {
+    prompt,
+  });
+  res.status(200).json({
+    reply: pythonRes.data.reply,
+    generatedImage: pythonRes.data.imageUrl,
+  });
+};
+
+export { getAIRequests, chat, generateImage };

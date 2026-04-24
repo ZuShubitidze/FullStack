@@ -1,3 +1,4 @@
+import api from "@/api";
 import { getPreview } from "@/components/GetPreview";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ const AIPage = () => {
   const [date, setDate] = useState<string>();
   const [chatResponse, setChatResponse] = useState<string>();
   const [chatHistory, setChatHistory] = useState<ChatHistory | null>(null);
+  const [generateImagePrompt, setGenerateImagePrompt] = useState<string>("");
 
   // Image Change
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,6 +80,16 @@ const AIPage = () => {
     if (fullItem) {
       setChatResponse(fullItem.text);
     }
+  };
+
+  // Generate Image
+  const handleGenerateImage = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const response = api.post("/geminiAI/generateImage", {
+      generateImagePrompt,
+    });
+    console.log(response);
   };
 
   if (isChatPending) return <SkeletonCard />;
@@ -161,6 +173,17 @@ const AIPage = () => {
               ))}
           </ul>
         )}
+      </section>
+      {/* Generate Image */}
+      <section>
+        <form onSubmit={handleGenerateImage}>
+          <Textarea
+            placeholder="Generate Image Prompt"
+            value={generateImagePrompt}
+            onChange={(e) => setGenerateImagePrompt(e.target.value)}
+          />
+          <Button type="submit">Generate Image</Button>
+        </form>
       </section>
     </main>
   );

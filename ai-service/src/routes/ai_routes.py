@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from src.services.gemini import get_gemini_model
+from src.services.gemini import get_gemini_model, get_gemini_imagen_model, get_imagen_client
 import httpx
 
 router = APIRouter()
@@ -14,7 +14,8 @@ async def chat_with_history(request: dict):
         user_prompt = request.get("prompt")
         image_url = request.get("imageUrl")
         chat = model.start_chat(history=history)
-        print(f"DEBUG: Received ImageURL: {image_url}", flush=True)
+        print(
+            f"Received Prompt:{user_prompt}, ImageURL: {image_url}", flush=True)
 
         if not image_url:
             print("DEBUG: No ImageURL found in request body", flush=True)
@@ -31,10 +32,41 @@ async def chat_with_history(request: dict):
                 response = await chat.send_message_async([user_prompt, image_part])
         else:
             # If no Image, just send prompt
-            response = await chat.send_message_async(user_prompt)
+            response = await chat.send_message_async(user_prompt, generation_config={})
 
-        print(f"DEBUG: Received ImageURL: {image_url}", flush=True)
         return {"reply": response.text}
     except Exception as e:
         print(f"Chat Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/generateImage")
+async def generate_image(request: str):
+    try:
+        client = get_imagen_client()
+        model = get_gemini_imagen_model(),
+        user_prompt = request
+        print(f"Received Prompt {user_prompt}", flush=True)
+
+        response = client.models.generate_images(
+            model="imagen-3.0-generate-001",
+            prompt=user_prompt,
+        )
+
+        if not response.generated_images or len(response.generated_images):
+            raise HTTPException(
+                status_code=400, detail="AI refused to generate image")
+
+        image = response.generated_images[0]
+
+        import base64
+        img_bytes = image.image_bytes  # type: ignore
+        image_base64 = base64.b64encode(img_bytes).decode('utf-8')
+
+        return {
+            "reply": "Image generated successfully!",
+            "imageUrl": f"data:image/jpeg;base64,{image_base64}"
+        }
+    except Exception as e:
+        print(f"Imagen Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
