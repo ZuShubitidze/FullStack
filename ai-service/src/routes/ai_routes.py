@@ -40,7 +40,6 @@ async def chat_with_history(request: dict):
                 )
                 # image_part = {"mime_type": content_type, "data": resp.content}
                 # Send message with both Image and Prompt
-                # type: ignore
                 response = await chat.send_message([user_prompt, image_part])
         else:
             # If no Image, just send prompt
