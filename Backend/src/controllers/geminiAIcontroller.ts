@@ -24,14 +24,14 @@ const chat = async (req: Request, res: Response) => {
 
     if (req.file) {
       const b64 = Buffer.from(req.file.buffer).toString("base64");
-      const dataURI = "data:" + req.file.mimetype + ";base64" + b64;
+      const dataURI = "data:" + req.file.mimetype + ";base64," + b64;
       const cloudRes = await cloudinary.uploader.upload(dataURI);
       imageUrl = cloudRes.secure_url;
     }
 
     const dbHistory = await prisma.airequest.findMany({
       where: { userId: userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: "asc" },
     });
 
     // Format for Gemini
@@ -39,9 +39,14 @@ const chat = async (req: Request, res: Response) => {
       { role: "user", parts: [{ text: msg.prompt }] },
       { role: "model", parts: [{ text: msg.text }] },
     ]);
-
+    console.log("ImageURL:", imageUrl);
     // Call Python service on Render
     const pythonServiceUrl = "https://fullstack-1-w4l1.onrender.com/chat";
+    console.log("SENDING TO PYTHON:", {
+      prompt,
+      imageUrl,
+      historyCount: formattedHistory.length,
+    });
     const pythonRes = await axios.post(
       pythonServiceUrl,
       { prompt: prompt, history: formattedHistory, imageUrl },
