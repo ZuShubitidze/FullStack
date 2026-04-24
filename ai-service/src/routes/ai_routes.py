@@ -31,7 +31,7 @@ async def chat_with_history(request: dict):
                 response = await chat.send_message_async([user_prompt, image_part])
         else:
             # If no Image, just send prompt
-            response = chat.send_message_async(user_prompt)
+            response = await chat.send_message_async(user_prompt)
 
         print(f"DEBUG: Received ImageURL: {image_url}", flush=True)
         return {"reply": response.text}
