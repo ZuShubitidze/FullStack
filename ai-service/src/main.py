@@ -2,6 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from src.routes.ai_routes import router as ai_router
+import sys
+print(sys.path)  # Debug: see where Python is looking
+try:
+    from google import genai
+    print("google-genai imported successfully")
+except ImportError as e:
+    print("Import error:", e)
 
 load_dotenv()
 
