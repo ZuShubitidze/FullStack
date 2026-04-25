@@ -1,8 +1,8 @@
+import sys
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from src.routes.ai_routes import router as ai_router
-import sys
 print(f"DEBUG - Python Version: {sys.version}", flush=True)
 print(f"DEBUG - Sys Path: {sys.path}", flush=True)
 

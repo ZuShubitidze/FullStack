@@ -13,7 +13,7 @@ dependencies = [
     "uvicorn>=0.44.0",
 ]
 [tool.fastapi]
-entrypoint = "main:app"
+entrypoint = "src.main:app"
 dependencies = [
     "fastapi[standard]>=0.135.3",
     "google-genai>=1.70.0",
