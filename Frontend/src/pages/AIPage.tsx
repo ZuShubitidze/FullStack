@@ -33,6 +33,7 @@ const AIPage = () => {
 
   // Image Change
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
     const file = e.target.files?.[0];
     if (file) {
       setImage(file);
@@ -51,17 +52,24 @@ const AIPage = () => {
   }, [preview]);
 
   // Generate Chat
-  const { mutateAsync: generateChatResponse, isPending: isChatPending } =
-    useGenerateAIResponseChat();
+  // const { mutateAsync: generateChatResponse, isPending: isChatPending } =
+  //   useGenerateAIResponseChat();
+  const {
+    mutate,
+    streamingText,
+    isPending: isChatPending,
+  } = useGenerateAIResponseChat();
   const handleSubmitChat = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await generateChatResponse({ prompt, image });
-    setDate(result.date);
-    setChatResponse(result.reply);
+    // const result = await generateChatResponse({ prompt, image });
+    mutate({ prompt: prompt, image: image });
+    // setDate(result.date);
+    // setChatResponse(result.data);
     setPrompt("");
-    setChatHistory(result.chatHistory);
-    console.log("Full Result:", result);
-    console.log("Chat History:", chatHistory, result.chatHistory);
+    setImage(null);
+    // setChatHistory(result.chatHistory);
+    console.log("Full Result:", streamingText);
+    // console.log("Chat History:", chatHistory);
   };
   const chatReply = chatResponse?.replaceAll("*", "");
   const convertedDate = new Date(date!).toLocaleString("en-US", {
@@ -92,7 +100,7 @@ const AIPage = () => {
     console.log(response);
   };
 
-  if (isChatPending) return <SkeletonCard />;
+  // if (isChatPending) return <SkeletonCard />;
 
   return (
     <main className="flex flex-col md:flex-row gap-20 md:gap-30 lg:gap-40">

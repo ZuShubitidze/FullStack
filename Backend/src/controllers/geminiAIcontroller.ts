@@ -52,30 +52,63 @@ const chat = async (req: Request, res: Response) => {
     const pythonRes = await axios.post(
       pythonServiceUrl,
       { prompt: prompt, history: formattedHistory, imageUrl },
-      { headers: { "Content-Type": "application/json" } },
+      {
+        headers: { "Content-Type": "application/json" },
+        responseType: "stream", // Get Streaming Response
+      },
     );
 
-    // Save to DB
-    if (pythonRes.data.reply) {
-      await prisma.airequest.create({
-        data: {
-          userId: userId,
-          text: pythonRes.data.reply,
-          prompt: prompt,
-        },
-      });
-    }
+    // 2. Set headers for Server-Sent Events (SSE)
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
 
-    res.status(200).json({
-      reply: pythonRes.data.reply,
-      data: pythonRes.data,
-      date: pythonRes.headers["date"],
-      chatHistory: formattedHistory,
+    let fullReply = "";
+
+    // 3. Listen to the stream data to save to DB later
+    pythonRes.data.on("data", (chunk: any) => {
+      const chunkStr = chunk.toString();
+      fullReply += chunkStr.replace("data: ", "").replace("\n\n", "");
+
+      // Send the chunk immediately to the frontend
+      res.write(chunkStr);
     });
+
+    // 4. When the stream finishes, save to Prisma and end the response
+    pythonRes.data.on("end", async () => {
+      if (fullReply) {
+        await prisma.airequest.create({
+          data: {
+            userId: userId,
+            text: fullReply,
+            prompt: prompt,
+          },
+        });
+      }
+      res.end();
+    });
+
+    // Save to DB
+    // if (pythonRes.data.reply) {
+    //   await prisma.airequest.create({
+    //     data: {
+    //       userId: userId,
+    //       text: pythonRes.data.reply,
+    //       prompt: prompt,
+    //     },
+    //   });
+    // }
+
+    // res.status(200).json({
+    //   reply: pythonRes.data.reply,
+    //   data: pythonRes.data,
+    //   date: pythonRes.headers["date"],
+    //   chatHistory: formattedHistory,
+    // });
   } catch (error: any) {
     console.error("Error calling Python service:", error);
-    console.log("Error Message:", error.message);
-    res.status(500).json({ error: "AI Service unavailable" });
+    res.status(500).write(`data: Error: ${error.message}\n\n`);
+    res.end();
   }
 };
 
