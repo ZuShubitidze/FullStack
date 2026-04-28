@@ -18,7 +18,7 @@ async def chat_with_history(request: dict):
 
         if not image_url:  # If no image
             print("DEBUG: No ImageURL found in request body", flush=True)
-        # If we receive iamge
+        # If image
         if image_url:
             async with httpx.AsyncClient() as imageClient:
                 resp = await imageClient.get(image_url)
@@ -32,12 +32,18 @@ async def chat_with_history(request: dict):
                 # )
                 image_part = {"mime_type": content_type, "data": resp.content}
                 # Sending both Text and Image
-                response = await chat.send_message_async([user_prompt, image_part])
+                response = await chat.send_message_async([user_prompt, image_part], stream=True)
+
+                async for chunk in response:
+                    yield chunk.text
         else:
-            # If no Image, just send prompt
+            # If no image, just send prompt
             response = await chat.send_message_async(user_prompt)
 
-        return {"reply": response.text}
+            async for chunk in response:
+                yield chunk.text
+
+        # return {"reply": response.text}
     except Exception as e:
         print(f"Chat Error: {str(e)}")  # Crucial for Render logs
         raise HTTPException(status_code=500, detail=str(e))

@@ -7,7 +7,7 @@ api_key = os.getenv("GOOGLE_API_KEY")
 
 load_dotenv()
 # Setup Gemini
-genai.configure(api_key=api_key)  # type: ignore
+genai.configure(api_key=api_key)  # pyright: ignore
 
 
 def get_gemini_model():
