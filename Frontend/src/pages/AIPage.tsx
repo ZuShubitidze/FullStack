@@ -63,10 +63,13 @@ const AIPage = () => {
   } = useGenerateAIResponseChat();
   const handleSubmitChat = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!image) return;
+    let imageURL = "";
+
+    if (image) {
+      imageURL = await uploadToCloudinary(image, "users");
+    }
 
     // const result = await generateChatResponse({ prompt, image });
-    const imageURL = await uploadToCloudinary(image, "users");
 
     mutate({ prompt, imageURL });
     // setDate(result.date);
@@ -156,7 +159,9 @@ const AIPage = () => {
             <p>{chatReply}</p>
           </section>
         )}
-        {isChatPending && <section>{streamingText}</section>}
+        {(isChatPending || streamingText) && (
+          <section>{streamingText || "Thinking"}</section>
+        )}
       </section>
       {/* History */}
       <section className="w-140">

@@ -43,11 +43,11 @@ async def chat_with_history(request: dict):
 
             else:
                 # If no image, just send prompt
-                response = await chat.send_message_async(user_prompt)
+                response = await chat.send_message_async(user_prompt, stream=True)
                 print(f"Response: {response}")
 
-            async for chunk in response:
-                yield chunk.text
+                async for chunk in response:
+                    yield f"data: {chunk.text}\n\n"
 
         except Exception as e:
             print(f"Chat Error: {str(e)}")  # Crucial for Render logs

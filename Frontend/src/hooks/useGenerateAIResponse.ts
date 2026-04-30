@@ -13,12 +13,14 @@ export const useGenerateAIResponseChat = () => {
   const queryClient = useQueryClient();
   const [streamingText, setStreamingText] = useState<string>(""); // Track live response
   const [fullResponse, setFullResponse] = useState<any>();
+  const [isFinished, setIsFinished] = useState(false);
 
   const { accessToken } = useAuth();
 
   const mutation = useMutation({
     mutationFn: async ({ prompt, imageURL }: Chat) => {
       setStreamingText("");
+      setIsFinished(false);
 
       console.log("Sending Data to Backend:", imageURL, prompt);
 
@@ -28,6 +30,7 @@ export const useGenerateAIResponseChat = () => {
           method: "POST",
           headers: {
             Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ prompt, imageURL }),
         },
@@ -44,7 +47,10 @@ export const useGenerateAIResponseChat = () => {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          setIsFinished(true);
+          break;
+        }
 
         const chunk = decoder.decode(value);
         // Proccess SSE format "data: text\n\n"
