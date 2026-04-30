@@ -13,7 +13,7 @@ async def chat_with_history(request: dict):
             model = get_gemini_model()
             history = request.get("history") or []
             user_prompt = request.get("prompt")
-            image_url = request.get("imageUrl")
+            image_url = request.get("imageURL")
             # Initialize chat with history with get from NodeJS
             chat = model.start_chat(history=history)
 

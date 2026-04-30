@@ -20,16 +20,8 @@ const getAIRequests = async (req: Request, res: Response) => {
 
 const chat = async (req: Request, res: Response) => {
   try {
-    const { prompt } = req.body;
+    const { prompt, imageURL } = req.body;
     const userId = req.user.id;
-    let imageUrl = null;
-
-    if (req.file) {
-      const b64 = Buffer.from(req.file.buffer).toString("base64");
-      const dataURI = "data:" + req.file.mimetype + ";base64," + b64;
-      const cloudRes = await cloudinary.uploader.upload(dataURI);
-      imageUrl = cloudRes.secure_url;
-    }
 
     const dbHistory = await prisma.airequest.findMany({
       where: { userId: userId },
@@ -41,17 +33,16 @@ const chat = async (req: Request, res: Response) => {
       { role: "user", parts: [{ text: msg.prompt }] },
       { role: "model", parts: [{ text: msg.text }] },
     ]);
-    console.log("ImageURL:", imageUrl);
     // Call Python service on Render
     const pythonServiceUrl = "https://fullstack-1-w4l1.onrender.com/chat";
     console.log("SENDING TO PYTHON:", {
       prompt,
-      imageUrl,
+      imageURL,
       historyCount: formattedHistory.length,
     });
     const pythonRes = await axios.post(
       pythonServiceUrl,
-      { prompt: prompt, history: formattedHistory, imageUrl },
+      { prompt: prompt, history: formattedHistory, imageURL },
       {
         headers: { "Content-Type": "application/json" },
         responseType: "stream", // Get Streaming Response

@@ -63,13 +63,12 @@ const AIPage = () => {
   } = useGenerateAIResponseChat();
   const handleSubmitChat = async (e: React.FormEvent) => {
     e.preventDefault();
-    // const result = await generateChatResponse({ prompt, image });
-    let imageURL = "";
-    if (image) {
-      imageURL = await uploadToCloudinary(image, "users");
-    }
+    if (!image) return;
 
-    mutate({ prompt: prompt, image: imageURL });
+    // const result = await generateChatResponse({ prompt, image });
+    const imageURL = await uploadToCloudinary(image, "users");
+
+    mutate({ prompt, imageURL });
     // setDate(result.date);
     // setChatResponse(result.data);
     setPrompt("");
@@ -82,13 +81,17 @@ const AIPage = () => {
     dateStyle: "long",
   });
   useEffect(() => {
-    console.log("Full Result:", streamingText);
-  }, ["Streaming Text:", streamingText, "Full Response:", fullResponse]);
+    console.log(
+      "Streaming Text:",
+      streamingText,
+      "Full Response:",
+      fullResponse,
+    );
+  }, [streamingText, fullResponse]);
 
   // Get Chat History
   const { AIResponseHistory } = getAIResponseHistory();
-
-  // Get Single AI Request
+  // Get Single AI Request from History
   const handleGetAIResponse = (e: React.FormEvent, id: number) => {
     e.preventDefault();
     const fullItem: AIRequest | undefined = AIResponseHistory.find(
@@ -100,14 +103,14 @@ const AIPage = () => {
   };
 
   // Generate Image
-  const handleGenerateImage = (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handleGenerateImage = (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    const response = api.post("/geminiAI/generateImage", {
-      generateImagePrompt,
-    });
-    console.log(response);
-  };
+  //   const response = api.post("/geminiAI/generateImage", {
+  //     generateImagePrompt,
+  //   });
+  //   console.log(response);
+  // };
 
   // if (isChatPending) return <SkeletonCard />;
 
@@ -194,7 +197,7 @@ const AIPage = () => {
         )}
       </section>
       {/* Generate Image */}
-      <section>
+      {/* <section>
         <form onSubmit={handleGenerateImage}>
           <Textarea
             placeholder="Generate Image Prompt"
@@ -203,7 +206,7 @@ const AIPage = () => {
           />
           <Button type="submit">Generate Image</Button>
         </form>
-      </section>
+      </section> */}
     </main>
   );
 };

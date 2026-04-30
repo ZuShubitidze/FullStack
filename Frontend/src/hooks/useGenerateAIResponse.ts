@@ -6,7 +6,7 @@ import { useState } from "react";
 
 interface Chat {
   prompt: string;
-  image: string;
+  imageURL: string;
 }
 
 export const useGenerateAIResponseChat = () => {
@@ -17,13 +17,10 @@ export const useGenerateAIResponseChat = () => {
   const { accessToken } = useAuth();
 
   const mutation = useMutation({
-    mutationFn: async ({ prompt, image }: Chat) => {
+    mutationFn: async ({ prompt, imageURL }: Chat) => {
       setStreamingText("");
 
-      const formData = new FormData();
-      formData.append("prompt", prompt);
-      if (image) formData.append("image", image);
-      console.log("Image:", image);
+      console.log("Sending Data to Backend:", imageURL, prompt);
 
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/geminiAI/chat`,
@@ -32,7 +29,7 @@ export const useGenerateAIResponseChat = () => {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-          body: formData,
+          body: JSON.stringify({ prompt, imageURL }),
         },
       );
       if (!response.body) {
