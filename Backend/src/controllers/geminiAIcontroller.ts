@@ -2,9 +2,8 @@ import "dotenv/config";
 import type { Request, Response } from "express";
 import prisma from "../lib/prisma.js";
 import axios from "axios";
-import cloudinary from "../lib/cloudinary.js";
 
-const pythonServiceUrl = "https://fullstack-1-w4l1.onrender.com/chat";
+const pythonServiceUrl = "https://fullstack-1-w4l1.onrender.com";
 
 const getAIRequests = async (req: Request, res: Response) => {
   const userId = req.user.id;
@@ -33,15 +32,15 @@ const chat = async (req: Request, res: Response) => {
       { role: "user", parts: [{ text: msg.prompt }] },
       { role: "model", parts: [{ text: msg.text }] },
     ]);
+
     // Call Python service on Render
-    const pythonServiceUrl = "https://fullstack-1-w4l1.onrender.com/chat";
     console.log("SENDING TO PYTHON:", {
       prompt,
       imageURL,
       historyCount: formattedHistory.length,
     });
     const pythonRes = await axios.post(
-      pythonServiceUrl,
+      `${pythonServiceUrl}/chat`,
       { prompt: prompt, history: formattedHistory, imageURL },
       {
         headers: { "Content-Type": "application/json" },

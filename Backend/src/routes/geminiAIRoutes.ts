@@ -12,7 +12,7 @@ const upload = multer();
 
 const router = express.Router();
 
-router.post("/chat", protect, upload.single("image"), asyncHandler(chat));
+router.post("/chat", protect, asyncHandler(chat));
 router.post("/generateImage", protect, asyncHandler(generateImage));
 router.get("/getAIRequests", protect, asyncHandler(getAIRequests));
 
