@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from src.services.gemini import get_gemini_model
 from fastapi.responses import StreamingResponse
 import httpx
@@ -44,6 +44,7 @@ async def chat_with_history(request: dict):
             else:
                 # If no image, just send prompt
                 response = await chat.send_message_async(user_prompt)
+                print(f"Response: {response}")
 
             async for chunk in response:
                 yield chunk.text

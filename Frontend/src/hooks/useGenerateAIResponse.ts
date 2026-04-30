@@ -6,12 +6,15 @@ import { useState } from "react";
 
 interface Chat {
   prompt: string;
-  image: File | null;
+  image: string;
 }
 
 export const useGenerateAIResponseChat = () => {
   const queryClient = useQueryClient();
   const [streamingText, setStreamingText] = useState<string>(""); // Track live response
+  const [fullResponse, setFullResponse] = useState<any>();
+
+  const { accessToken } = useAuth();
 
   const mutation = useMutation({
     mutationFn: async ({ prompt, image }: Chat) => {
@@ -20,17 +23,23 @@ export const useGenerateAIResponseChat = () => {
       const formData = new FormData();
       formData.append("prompt", prompt);
       if (image) formData.append("image", image);
+      console.log("Image:", image);
 
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/geminiAI/chat`,
         {
           method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
           body: formData,
         },
       );
       if (!response.body) {
         throw new Error("No response body");
       }
+
+      setFullResponse(response);
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -43,11 +52,13 @@ export const useGenerateAIResponseChat = () => {
         const chunk = decoder.decode(value);
         // Proccess SSE format "data: text\n\n"
         const cleanChunk = chunk.replace(/data: /g, "").replace(/\n\n/g, "");
+        console.log("Response in Tanstack Query:", response);
+        console.log("Raw chunk:", chunk);
 
         accumulated += cleanChunk;
         setStreamingText(accumulated); // Update UI in real-time
       }
-      return accumulated;
+      return { accumulated, response };
     },
     onSuccess: () => {
       // Invalidate history
@@ -55,7 +66,7 @@ export const useGenerateAIResponseChat = () => {
     },
   });
 
-  return { ...mutation, streamingText };
+  return { ...mutation, streamingText, fullResponse };
 
   // return useMutation({
   //   mutationFn: async ({ prompt, image }: Chat) => {

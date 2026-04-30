@@ -65,7 +65,7 @@ const chat = async (req: Request, res: Response) => {
 
     let fullReply = "";
 
-    // 3. Listen to the stream data to save to DB later
+    // Listen to the stream data to save to DB later
     pythonRes.data.on("data", (chunk: any) => {
       const chunkStr = chunk.toString();
       fullReply += chunkStr.replace("data: ", "").replace("\n\n", "");
@@ -73,8 +73,11 @@ const chat = async (req: Request, res: Response) => {
       // Send the chunk immediately to the frontend
       res.write(chunkStr);
     });
+    console.log("Full Reply:", fullReply, "Python Response:", pythonRes);
 
-    // 4. When the stream finishes, save to Prisma and end the response
+    res.status(200).json({ reply: fullReply });
+
+    // When the stream finishes, save to Prisma and end the response
     pythonRes.data.on("end", async () => {
       if (fullReply) {
         await prisma.airequest.create({

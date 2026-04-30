@@ -4,6 +4,7 @@ import { SkeletonCard } from "@/components/SkeletonCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { uploadToCloudinary } from "@/hooks/uploadToCloudinary";
 import {
   getAIResponseHistory,
   useGenerateAIResponseChat,
@@ -58,23 +59,31 @@ const AIPage = () => {
     mutate,
     streamingText,
     isPending: isChatPending,
+    fullResponse,
   } = useGenerateAIResponseChat();
   const handleSubmitChat = async (e: React.FormEvent) => {
     e.preventDefault();
     // const result = await generateChatResponse({ prompt, image });
-    mutate({ prompt: prompt, image: image });
+    let imageURL = "";
+    if (image) {
+      imageURL = await uploadToCloudinary(image, "users");
+    }
+
+    mutate({ prompt: prompt, image: imageURL });
     // setDate(result.date);
     // setChatResponse(result.data);
     setPrompt("");
     setImage(null);
     // setChatHistory(result.chatHistory);
-    console.log("Full Result:", streamingText);
     // console.log("Chat History:", chatHistory);
   };
   const chatReply = chatResponse?.replaceAll("*", "");
   const convertedDate = new Date(date!).toLocaleString("en-US", {
     dateStyle: "long",
   });
+  useEffect(() => {
+    console.log("Full Result:", streamingText);
+  }, ["Streaming Text:", streamingText, "Full Response:", fullResponse]);
 
   // Get Chat History
   const { AIResponseHistory } = getAIResponseHistory();
@@ -114,6 +123,7 @@ const AIPage = () => {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
           />
+          {/* Image Input and Preview */}
           <Input type="file" accept="image/*" onChange={handleImageChange} />
           {preview && (
             <div className="mt-4">
@@ -136,15 +146,16 @@ const AIPage = () => {
             Chat
           </Button>
         </form>
-        {/* AI Answer */}
+        {/* Answer */}
         {chatResponse && (
           <section className="mt-10">
             <span>Date: {convertedDate}</span>
             <p>{chatReply}</p>
           </section>
         )}
+        {isChatPending && <section>{streamingText}</section>}
       </section>
-      {/* History Section */}
+      {/* History */}
       <section className="w-140">
         {/* Show / Close History Button */}
         <Button
