@@ -82,7 +82,7 @@ const chat = async (req: Request, res: Response) => {
       } catch (err) {
         console.error("DB Save Error:", err);
       } finally {
-        res.end(); // CRITICAL: Closes the frontend connection
+        res.end(); // Close the frontend connection
       }
     });
 
@@ -114,18 +114,4 @@ const chat = async (req: Request, res: Response) => {
     res.end();
   }
 };
-
-const generateImage = async (req: Request, res: Response) => {
-  const { prompt } = req.body;
-  // const pythonServiceUrl = "https://fullstack-1-w4l1.onrender.com/chat"
-  console.log(pythonServiceUrl);
-  const pythonRes = await axios.post(`${pythonServiceUrl}/generateImage`, {
-    prompt,
-  });
-  res.status(200).json({
-    reply: pythonRes.data.reply,
-    generatedImage: pythonRes.data.imageUrl,
-  });
-};
-
-export { getAIRequests, chat, generateImage };
+export { getAIRequests, chat };

@@ -10,7 +10,7 @@ export const generateToken = (userId: number, res: Response) => {
   }
   // Temporary Access Token
   const accessToken = jwt.sign({ id: userId }, jwtSecret, {
-    expiresIn: "15m",
+    expiresIn: "30m",
   });
 
   if (!refreshSecret) {

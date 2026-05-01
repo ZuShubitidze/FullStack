@@ -207,7 +207,7 @@ const refresh = async (req: Request, res: Response) => {
     }
 
     const newAccessToken = jwt.sign({ id: decoded.id }, jwtSecret, {
-      expiresIn: "15m",
+      expiresIn: "30m",
     });
 
     res.json({ accessToken: newAccessToken });

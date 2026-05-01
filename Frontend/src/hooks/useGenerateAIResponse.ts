@@ -55,8 +55,6 @@ export const useGenerateAIResponseChat = () => {
         const chunk = decoder.decode(value);
         // Proccess SSE format "data: text\n\n"
         const cleanChunk = chunk.replace(/data: /g, "").replace(/\n\n/g, "");
-        console.log("Response in Tanstack Query:", response);
-        console.log("Raw chunk:", chunk);
 
         accumulated += cleanChunk;
         setStreamingText(accumulated); // Update UI in real-time

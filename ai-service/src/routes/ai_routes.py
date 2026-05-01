@@ -55,3 +55,4 @@ async def chat_with_history(request: dict):
             # raise HTTPException(status_code=500, detail=str(e))
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
+

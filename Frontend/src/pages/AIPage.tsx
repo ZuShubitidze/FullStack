@@ -1,6 +1,4 @@
-import api from "@/api";
 import { getPreview } from "@/components/GetPreview";
-import { SkeletonCard } from "@/components/SkeletonCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,25 +10,12 @@ import {
 import type { AIRequest } from "@/types/aiRequest.interface";
 import { useEffect, useState } from "react";
 
-interface ChatHistory {
-  role: string;
-  parts: {
-    role: string;
-    index: {
-      text: string;
-    };
-  };
-}
-
 const AIPage = () => {
   const [showHistory, setShowHistory] = useState<boolean>(false);
+  const [historyItem, setHistoryItem] = useState<string | null>();
   const [prompt, setPrompt] = useState<string>("");
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [date, setDate] = useState<string>();
-  const [chatResponse, setChatResponse] = useState<string>();
-  const [chatHistory, setChatHistory] = useState<ChatHistory | null>(null);
-  const [generateImagePrompt, setGenerateImagePrompt] = useState<string>("");
 
   // Image Change
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,13 +38,10 @@ const AIPage = () => {
   }, [preview]);
 
   // Generate Chat
-  // const { mutateAsync: generateChatResponse, isPending: isChatPending } =
-  //   useGenerateAIResponseChat();
   const {
     mutate,
     streamingText,
     isPending: isChatPending,
-    fullResponse,
   } = useGenerateAIResponseChat();
   const handleSubmitChat = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,59 +51,30 @@ const AIPage = () => {
       imageURL = await uploadToCloudinary(image, "users");
     }
 
-    // const result = await generateChatResponse({ prompt, image });
-
     mutate({ prompt, imageURL });
-    // setDate(result.date);
-    // setChatResponse(result.data);
     setPrompt("");
     setImage(null);
-    // setChatHistory(result.chatHistory);
-    // console.log("Chat History:", chatHistory);
+    setHistoryItem("");
   };
-  const chatReply = chatResponse?.replaceAll("*", "");
-  const convertedDate = new Date(date!).toLocaleString("en-US", {
-    dateStyle: "long",
-  });
-  useEffect(() => {
-    console.log(
-      "Streaming Text:",
-      streamingText,
-      "Full Response:",
-      fullResponse,
-    );
-  }, [streamingText, fullResponse]);
 
   // Get Chat History
   const { AIResponseHistory } = getAIResponseHistory();
-  // Get Single AI Request from History
+  // Get specific AI Request from History
   const handleGetAIResponse = (e: React.FormEvent, id: number) => {
     e.preventDefault();
     const fullItem: AIRequest | undefined = AIResponseHistory.find(
       (item) => item.id === id,
     );
     if (fullItem) {
-      setChatResponse(fullItem.text);
+      setHistoryItem(fullItem.text);
     }
   };
 
-  // Generate Image
-  // const handleGenerateImage = (e: React.FormEvent) => {
-  //   e.preventDefault();
-
-  //   const response = api.post("/geminiAI/generateImage", {
-  //     generateImagePrompt,
-  //   });
-  //   console.log(response);
-  // };
-
-  // if (isChatPending) return <SkeletonCard />;
-
   return (
-    <main className="flex flex-col md:flex-row gap-20 md:gap-30 lg:gap-40">
+    <main className="flex flex-col md:flex-row gap-10 md:gap-20 lg:gap-30 justify-around">
       {/* Chat */}
-      <section className="w-100 lg:w-120 mb-10 md:mb-0">
-        <h1>Chat AI:</h1>
+      <section className="w-140 lg:w-120 mb-10 md:mb-0">
+        <h1>Chat With AI:</h1>
         {/* Form Input */}
         <form onSubmit={handleSubmitChat} className="flex flex-col gap-10">
           <Textarea
@@ -152,18 +105,23 @@ const AIPage = () => {
             Chat
           </Button>
         </form>
-        {/* Answer */}
-        {chatResponse && (
-          <section className="mt-10">
-            <span>Date: {convertedDate}</span>
-            <p>{chatReply}</p>
+        {isChatPending || streamingText ? (
+          <section>
+            <span>
+              {new Date().toLocaleString("en-US", {
+                dateStyle: "long",
+              })}
+            </span>
+            <p>{streamingText || "Thinking. . ."}</p>
           </section>
-        )}
-        {(isChatPending || streamingText) && (
-          <section>{streamingText || "Thinking"}</section>
+        ) : historyItem ? (
+          <p>{historyItem}</p>
+        ) : (
+          <p></p>
         )}
       </section>
-      {/* History */}
+
+      {/* Chat History */}
       <section className="w-140">
         {/* Show / Close History Button */}
         <Button
@@ -201,17 +159,6 @@ const AIPage = () => {
           </ul>
         )}
       </section>
-      {/* Generate Image */}
-      {/* <section>
-        <form onSubmit={handleGenerateImage}>
-          <Textarea
-            placeholder="Generate Image Prompt"
-            value={generateImagePrompt}
-            onChange={(e) => setGenerateImagePrompt(e.target.value)}
-          />
-          <Button type="submit">Generate Image</Button>
-        </form>
-      </section> */}
     </main>
   );
 };
